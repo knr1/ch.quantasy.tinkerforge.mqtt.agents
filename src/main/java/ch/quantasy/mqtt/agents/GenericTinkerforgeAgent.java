@@ -41,7 +41,6 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
     public void connect() throws MqttException {
         super.connect();
         subscribe("TF/Manager/U/+/S/connection", (topic, payload) -> {
-            System.out.println("Message arrived from: " + topic);
             synchronized (tinkerforgeManagerServiceContracts) {
                 String managerUnit = topic.split("/")[3];
                 tinkerforgeManagerServiceContracts.add(new ManagerServiceContract(managerUnit));
@@ -50,7 +49,6 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
             }
         });
         subscribe("TF/Manager/U/+/S/stack/address/#", (topic, payload) -> {
-            System.out.println("Message arrived from: " + topic);
             synchronized (managedStacks) {
                 System.out.println("--->" + topic);
                 String managedStackAddressParts[] = topic.split("/");
@@ -74,7 +72,6 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
             }
         });
         subscribe("Timer/Tick/U/+/S/connection", (topic, payload) -> {
-            System.out.println("Message arrived from: " + topic);
             synchronized (timerServiceContracts) {
                 String timerUnit = topic.split("/")[3];
                 timerServiceContracts.add(new TimerServiceContract(timerUnit));
@@ -148,7 +145,6 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
         }
         System.out.println("Subscribing to " + address);
         subscribe(managerServiceContract.STATUS_STACK_ADDRESS + "/" + stackName, (topic, payload) -> {
-            System.out.println("Message arrived from: " + topic);
             Boolean isConnected = false;
             if (payload.length > 0) {
                 isConnected = getMapper().readValue(payload, Boolean.class);
