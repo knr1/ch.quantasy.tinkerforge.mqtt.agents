@@ -42,21 +42,23 @@
  */
 package ch.quantasy.mqtt.agents.outerLights;
 
+import ch.quantasy.gateway.intent.ambientLight.AmbientLightIntent;
 import ch.quantasy.gateway.service.device.ambientLight.AmbientLightServiceContract;
 import ch.quantasy.gateway.service.device.dc.DCServiceContract;
 import ch.quantasy.gateway.service.device.motionDetector.MotionDetectorServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.MessageReceiver;
-import ch.quantasy.tinkerforge.device.ambientLight.DeviceIlluminanceCallbackThreshold;
+import ch.quantasy.gateway.intent.ambientLight.DeviceIlluminanceCallbackThreshold;
+import ch.quantasy.gateway.intent.dc.DCIntent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,15 +99,16 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
             return;
         }
         TimerServiceContract timerContract = super.getTimerServiceContracts()[0];
-      
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("erdgeschoss"));
 
-        publishIntent(dcServiceContract.INTENT_ACCELERATION, 10000);
-        publishIntent(dcServiceContract.INTENT_DRIVER_MODE, 1);
-        publishIntent(dcServiceContract.INTENT_PWM_FREQUENCY, 20000);
-        publishIntent(dcServiceContract.INTENT_ENABLED, true);
+        DCIntent dcIntent = new DCIntent();
+        dcIntent.acceleration = 10000;
+        dcIntent.driveMode = 1;
+        dcIntent.pwmFrequency = 20000;
+        dcIntent.enable = true;
+        publishIntent(dcServiceContract.INTENT, dcIntent);
 
         for (MotionDetectorServiceContract motionDetectorServiceContract : motionDetectorServiceContracts) {
             subscribe(motionDetectorServiceContract.EVENT_MOTION_DETECTED, new MessageReceiver() {
@@ -122,8 +125,10 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
             });
         }
         for (AmbientLightServiceContract ambientLightServiceContract : ambientLightServiceContracts) {
-            publishIntent(ambientLightServiceContract.INTENT_DEBOUNCE_PERIOD, 5000);
-            publishIntent(ambientLightServiceContract.INTENT_ILLUMINANCE_THRESHOLD, new DeviceIlluminanceCallbackThreshold('o', 20, 100));
+            AmbientLightIntent ambientIntent = new AmbientLightIntent();
+            ambientIntent.debouncePeriod = 5000L;
+            ambientIntent.illuminanceThreshold = new DeviceIlluminanceCallbackThreshold('o', 20, 100);
+            publishIntent(ambientLightServiceContract.INTENT, ambientIntent);
             subscribe(ambientLightServiceContract.EVENT_ILLUMINANCE_REACHED, new MessageReceiver() {
                 @Override
                 public void messageReceived(String topic, byte[] payload) throws Exception {
@@ -169,11 +174,14 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
                         } catch (InterruptedException ex) {
                         }
                     }
-                    publishIntent(dcServiceContract.INTENT_VELOCITY_VELOCITY, (32767 / 100) * powerInPercent);
+                    DCIntent dcIntent = new DCIntent();
+                    dcIntent.velocity = (short) ((32767 / 100) * powerInPercent);
+                    publishIntent(dcServiceContract.INTENT, dcIntent);
                     while (delayUntil > System.currentTimeMillis()) {
                         if (currentPowerInPercent != powerInPercent) {
                             currentPowerInPercent = powerInPercent;
-                            publishIntent(dcServiceContract.INTENT_VELOCITY_VELOCITY, (32767 / 100) * currentPowerInPercent);
+                            dcIntent.velocity = (short) ((32767 / 100) * currentPowerInPercent);
+                            publishIntent(dcServiceContract.INTENT, dcIntent);
                         }
                         long delay = delayUntil - System.currentTimeMillis();
                         try {
@@ -181,7 +189,8 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
                         } catch (InterruptedException ex) {
                         }
                     }
-                    publishIntent(dcServiceContract.INTENT_VELOCITY_VELOCITY, (32767 / 100) * 0);
+                    dcIntent.velocity = (short) ((32767 / 100) * 0);
+                    publishIntent(dcServiceContract.INTENT, dcIntent);
                 }
             }
         }

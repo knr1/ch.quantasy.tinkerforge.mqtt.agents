@@ -45,14 +45,15 @@ package ch.quantasy.mqtt.agents.led;
 import ch.quantasy.mqtt.agents.led.abilities.AnLEDAbility;
 
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.agents.led.abilities.Fire;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.tinkerforge.device.led.LEDStripDeviceConfig;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,13 +84,13 @@ public class LEDs20W extends GenericTinkerforgeAgent {
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("lights10"));
-
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("lights10"));
+        LedStripIntent ledIntent = new LedStripIntent();
         LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2811, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.GRB);
-
+        ledIntent.config = config;
         LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("xe9", TinkerforgeDeviceClass.LEDStrip.toString());
-        publishIntent(ledServiceContract1.INTENT_CONFIG, config);
+        publishIntent(ledServiceContract1.INTENT, ledIntent);
 
         abilities.add(new Fire(this, ledServiceContract1, config));
 

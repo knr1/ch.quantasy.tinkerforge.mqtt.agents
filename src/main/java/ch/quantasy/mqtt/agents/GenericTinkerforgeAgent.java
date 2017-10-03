@@ -5,11 +5,12 @@
  */
 package ch.quantasy.mqtt.agents;
 
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
-import ch.quantasy.mqtt.gateway.client.AyamlClientContract;
+import ch.quantasy.mqtt.gateway.client.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackIntent;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,14 +23,14 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  *
  * @author reto
  */
-public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> {
+public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract> {
 
     private final Map<TinkerforgeStackAddress, Boolean> stacks;
-    private final Set<ManagerServiceContract> tinkerforgeManagerServiceContracts;
-    private final Map<ManagerServiceContract, Set<TinkerforgeStackAddress>> managedStacks;
+    private final Set<StackManagerServiceContract> tinkerforgeManagerServiceContracts;
+    private final Map<StackManagerServiceContract, Set<TinkerforgeStackAddress>> managedStacks;
     private final Set<TimerServiceContract> timerServiceContracts;
 
-    public GenericTinkerforgeAgent(URI mqttURI, String clientID, AyamlClientContract contract) throws MqttException {
+    public GenericTinkerforgeAgent(URI mqttURI, String clientID, AyamlServiceContract contract) throws MqttException {
         super(mqttURI, clientID, contract);
         stacks = new HashMap<>();
         tinkerforgeManagerServiceContracts = new HashSet<>();
@@ -43,7 +44,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
         subscribe("TF/Manager/U/+/S/connection", (topic, payload) -> {
             synchronized (tinkerforgeManagerServiceContracts) {
                 String managerUnit = topic.split("/")[3];
-                tinkerforgeManagerServiceContracts.add(new ManagerServiceContract(managerUnit));
+                tinkerforgeManagerServiceContracts.add(new StackManagerServiceContract(managerUnit));
                 System.out.println(managerUnit);
                 tinkerforgeManagerServiceContracts.notifyAll();
             }
@@ -52,7 +53,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
             synchronized (managedStacks) {
                 System.out.println("--->" + topic);
                 String managedStackAddressParts[] = topic.split("/");
-                ManagerServiceContract managerServiceContract = new ManagerServiceContract(managedStackAddressParts[3]);
+                StackManagerServiceContract managerServiceContract = new StackManagerServiceContract(managedStackAddressParts[3]);
                 Set<TinkerforgeStackAddress> addresses = managedStacks.get(managerServiceContract);
                 if (addresses == null) {
                     addresses = new HashSet<>();
@@ -86,7 +87,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
         }
     }
 
-    public ManagerServiceContract[] getTinkerforgeManagerServiceContracts() {
+    public StackManagerServiceContract[] getTinkerforgeManagerServiceContracts() {
         synchronized (tinkerforgeManagerServiceContracts) {
             if (tinkerforgeManagerServiceContracts.isEmpty()) {
                 try {
@@ -95,7 +96,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
                     //that is ok
                 }
             }
-            return tinkerforgeManagerServiceContracts.toArray(new ManagerServiceContract[0]);
+            return tinkerforgeManagerServiceContracts.toArray(new StackManagerServiceContract[0]);
         }
     }
 
@@ -112,7 +113,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
         }
     }
 
-    public Set<TinkerforgeStackAddress> getManagedTinkerforgeStacks(ManagerServiceContract managerServiceContract) {
+    public Set<TinkerforgeStackAddress> getManagedTinkerforgeStacks(StackManagerServiceContract managerServiceContract) {
         Set<TinkerforgeStackAddress> addresses = new HashSet<>();
         Set stackSet = this.managedStacks.get(managerServiceContract);
         if (stackSet != null) {
@@ -121,17 +122,17 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
         return addresses;
     }
 
-    public void removeTinkerforgeStackFrom(ManagerServiceContract managerServiceContract, TinkerforgeStackAddress address) {
-        publishIntent(managerServiceContract.INTENT_STACK_ADDRESS_REMOVE, address);
+    public void removeTinkerforgeStackFrom(StackManagerServiceContract managerServiceContract, TinkerforgeStackAddress address) {
+        publishIntent(managerServiceContract.INTENT, new TinkerforgeStackIntent(false, address));
     }
 
-    public void connectTinkerforgeStacksTo(ManagerServiceContract managerServiceContract, TinkerforgeStackAddress... addresses) {
+    public void connectTinkerforgeStacksTo(StackManagerServiceContract managerServiceContract, TinkerforgeStackAddress... addresses) {
         for (TinkerforgeStackAddress address : addresses) {
             connectTinkerforgeStackTo(managerServiceContract, address);
         }
     }
 
-    public void connectTinkerforgeStackTo(ManagerServiceContract managerServiceContract, TinkerforgeStackAddress address) {
+    public void connectTinkerforgeStackTo(StackManagerServiceContract managerServiceContract, TinkerforgeStackAddress address) {
         if (!address.getHostName().equals("localhost")) {
             for (Set<TinkerforgeStackAddress> managedStacks : managedStacks.values()) {
                 if (managedStacks.contains(address)) {
@@ -156,7 +157,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlClientContract> 
         });
         System.out.println("Connecting: " + stackName);
 
-        publishIntent(managerServiceContract.INTENT_STACK_ADDRESS_ADD, address);
+        publishIntent(managerServiceContract.INTENT, new TinkerforgeStackIntent(true, address));
 
         synchronized (stacks) {
             while (!stacks.get(address)) {

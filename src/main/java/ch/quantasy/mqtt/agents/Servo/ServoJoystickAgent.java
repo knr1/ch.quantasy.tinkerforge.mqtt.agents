@@ -42,20 +42,25 @@
  */
 package ch.quantasy.mqtt.agents.Servo;
 
+import ch.quantasy.gateway.intent.joystick.JoystickIntent;
 import ch.quantasy.gateway.service.device.joystick.JoystickService;
 import ch.quantasy.gateway.service.device.joystick.JoystickServiceContract;
 import ch.quantasy.gateway.service.device.servo.ServoServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.tinkerforge.device.servo.Degree;
-import ch.quantasy.tinkerforge.device.servo.PulseWidth;
-import ch.quantasy.tinkerforge.device.servo.Servo;
+import ch.quantasy.gateway.intent.servo.Degree;
+import ch.quantasy.gateway.intent.servo.PulseWidth;
+import ch.quantasy.gateway.intent.servo.Servo;
+import ch.quantasy.gateway.intent.servo.ServoIntent;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  *
@@ -84,11 +89,11 @@ public class ServoJoystickAgent extends GenericTinkerforgeAgent {
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
-
-        publishIntent(servoServiceContract.INTENT_STATUS_LED, false);
-
+        ServoIntent servoIntent=new ServoIntent();
+        servoIntent.statusLED=false;
+        publishIntent(servoServiceContract.INTENT,servoIntent);
         servos[0].setPulseWidth(new PulseWidth(1000, 2000));
         servos[0].setDegree(new Degree((short) -32767, (short) 32767));
         servos[0].setPeriod(20000);
@@ -98,9 +103,14 @@ public class ServoJoystickAgent extends GenericTinkerforgeAgent {
         servos[1].setDegree(new Degree((short) -32767, (short) 32767));
         servos[1].setPeriod(20000);
         servos[1].setEnabled(true);
-        publishIntent(servoServiceContract.INTENT_SERVOS, servos);
-        publishIntent(servoServiceContract.INTENT_STATUS_LED, true);
-        publishIntent(joystickServiceContract.INTENT_CALIBRATE, true);
+        Set<Servo> servoSet=new HashSet<>();
+        servoSet.addAll(Arrays.asList(servos));
+        servoIntent.servos=servoSet;
+        servoIntent.statusLED=true;
+        publishIntent(servoServiceContract.INTENT,servoIntent);
+        JoystickIntent joystickIntent=new JoystickIntent();
+        joystickIntent.calibrate=true;
+        publishIntent(joystickServiceContract.INTENT, joystickIntent);
 
         subscribe(joystickServiceContract.EVENT_POSITION, (topic, payload) -> {
             GCEvent<JoystickService.Position>[] position = toEventArray(payload, JoystickService.Position.class);
@@ -139,9 +149,11 @@ public class ServoJoystickAgent extends GenericTinkerforgeAgent {
                 servos[1].setEnabled(false);
 
             }
-            publishIntent(servoServiceContract.INTENT_SERVOS, servos);
+            publishIntent(servoServiceContract.INTENT, servoIntent);
         });
-        publishIntent(joystickServiceContract.INTENT_POSITION_CALLBACK_PERIOD, 10);
+        joystickIntent.calibrate=null;
+        joystickIntent.positionCallbackPeriod=10L;
+        publishIntent(joystickServiceContract.INTENT, joystickIntent);
 
     }
 

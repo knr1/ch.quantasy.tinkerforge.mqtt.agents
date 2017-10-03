@@ -43,12 +43,13 @@
 package ch.quantasy.mqtt.agents.remoteSwitch;
 
 import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.tinkerforge.device.remoteSwitch.DimSocketBParameters;
-import ch.quantasy.tinkerforge.device.remoteSwitch.SwitchSocketBParameters;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.remoteSwitch.DimSocketBParameters;
+import ch.quantasy.gateway.intent.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.intent.remoteSwitch.SwitchSocketBParameters;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.MessageReceiver;
@@ -76,7 +77,7 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("erdgeschoss"));
 
         subscribe("WebView/RemoteSwitch/E/touched/remoteSwitch/#", new MessageReceiver() {
@@ -103,11 +104,15 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
                 }
                 if (switcher.getType().equals("switchSocketB")) {
                     SwitchSocketBParameters[] bs = getMapper().readValue(mm, SwitchSocketBParameters[].class);
-                    publishIntent(contract.INTENT_SWITCH_SOCKET_B, bs[0]);
+                    RemoteSwitchIntent remoteSwitchIntent=new RemoteSwitchIntent();
+                    remoteSwitchIntent.switchSocketBParameters=bs[0];
+                    publishIntent(contract.INTENT, remoteSwitchIntent);
                 }
                 if (switcher.getType().equals("dimSocketB")) {
                     DimSocketBParameters[] bs = getMapper().readValue(mm, DimSocketBParameters[].class);
-                    publishIntent(contract.INTENT_DIM_SOCKET_B, bs[0]);
+                     RemoteSwitchIntent remoteSwitchIntent=new RemoteSwitchIntent();
+                    remoteSwitchIntent.dimSocketBParameters=bs[0];
+                    publishIntent(contract.INTENT, remoteSwitchIntent);
                 }
             }
         }

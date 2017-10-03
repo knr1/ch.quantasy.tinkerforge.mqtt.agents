@@ -42,10 +42,10 @@
  */
 package ch.quantasy.mqtt.agents.describer;
 
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.MessageReceiver;
@@ -67,7 +67,7 @@ public class DescriberAgent extends GenericTinkerforgeAgent implements MessageRe
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("Lights01"));
     }
 

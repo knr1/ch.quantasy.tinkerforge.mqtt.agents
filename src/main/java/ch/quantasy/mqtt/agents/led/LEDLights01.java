@@ -44,13 +44,13 @@ package ch.quantasy.mqtt.agents.led;
 
 import ch.quantasy.mqtt.agents.led.abilities.WaveAdjustableBrightness;
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.tinkerforge.device.led.LEDStripDeviceConfig;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +83,7 @@ public class LEDLights01 extends GenericTinkerforgeAgent {
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("ledLights01"));
 
         LEDStripDeviceConfig p34Config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, p34AmountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BRGW);

@@ -43,21 +43,24 @@
 package ch.quantasy.mqtt.agents.Segment7x4;
 
 import ch.quantasy.gateway.service.device.segment4x7.Segment4x7ServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.tinkerforge.device.segment4x7.DeviceSegments;
+import ch.quantasy.gateway.intent.segment4x7.DeviceSegments;
+import ch.quantasy.gateway.intent.segment4x7.Segment4x7Intent;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackIntent;
 
 /**
  *
  * @author reto
  */
 public class Segment7x4Agent extends GenericTinkerforgeAgent {
-    private ManagerServiceContract managerServiceContract;
+
+    private StackManagerServiceContract managerServiceContract;
 
     public Segment7x4Agent(URI mqttURI) throws MqttException, InterruptedException {
         super(mqttURI, "9h83jkl482", new GenericTinkerforgeAgentContract("Segment7x4", "counter"));
@@ -69,20 +72,23 @@ public class Segment7x4Agent extends GenericTinkerforgeAgent {
         }
 
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        TinkerforgeStackIntent intent = new TinkerforgeStackIntent(true, new TinkerforgeStackAddress("localhost"));
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
         Segment4x7ServiceContract segment4x7ServiceContract = new Segment4x7ServiceContract("pPA", TinkerforgeDeviceClass.SegmentDisplay4x7.toString());
         short[] segments = {1, 2, 3, 4};
         short brightness = 4;
         boolean colon = false;
+        Segment4x7Intent segment4x7Intent = new Segment4x7Intent();
 
         subscribe(segment4x7ServiceContract.STATUS_SEGMENTS, (topic, payload) -> {
             for (int i = 0; i < segments.length; i++) {
                 segments[i] = (short) ((segments[i] + 1) % 128);
             }
-            publishIntent(segment4x7ServiceContract.INTENT_SEGMENTS, new DeviceSegments(segments, brightness, false));
-
+            segment4x7Intent.segments = new DeviceSegments(segments, brightness, false);
+            publishIntent(segment4x7ServiceContract.INTENT, segment4x7Intent);
         });
-        publishIntent(segment4x7ServiceContract.INTENT_SEGMENTS, new DeviceSegments(segments, brightness, true));
+        segment4x7Intent.segments = new DeviceSegments(segments, brightness, true);
+        publishIntent(segment4x7ServiceContract.INTENT, segment4x7Intent);
 
     }
 

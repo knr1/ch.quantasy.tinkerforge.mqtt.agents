@@ -43,8 +43,9 @@ package ch.quantasy.mqtt.agents.led.abilities;
 
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.tinkerforge.device.led.LEDFrame;
-import ch.quantasy.tinkerforge.device.led.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.ledStrip.LEDFrame;
+import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.ledStrip.LedStripIntent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,7 +114,9 @@ public class WaveAdjustableBrightness extends AnLEDAbility {
 
     public WaveAdjustableBrightness(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
         super(gatewayClient, ledServiceContract, config);
-        gatewayClient.publishIntent(ledServiceContract.INTENT_CONFIG, config);
+        LedStripIntent intent = new LedStripIntent();
+        intent.config = config;
+        gatewayClient.publishIntent(ledServiceContract.INTENT, intent);
 
         frames = new ArrayList<>();
 

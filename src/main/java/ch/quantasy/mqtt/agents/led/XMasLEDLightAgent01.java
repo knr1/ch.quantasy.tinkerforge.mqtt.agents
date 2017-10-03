@@ -44,14 +44,14 @@ package ch.quantasy.mqtt.agents.led;
 
 import ch.quantasy.mqtt.agents.led.abilities.AnLEDAbility;
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.agents.led.abilities.SparklingFire;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.tinkerforge.device.led.LEDStripDeviceConfig;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +82,7 @@ public class XMasLEDLightAgent01 extends GenericTinkerforgeAgent {
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("lights02"));
 
         LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2801, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.RGB);

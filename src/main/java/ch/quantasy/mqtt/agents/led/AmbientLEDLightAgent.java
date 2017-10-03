@@ -46,13 +46,15 @@ import ch.quantasy.mqtt.agents.led.abilities.WaveAdjustableBrightness;
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
 import ch.quantasy.gateway.service.device.motionDetector.MotionDetectorServiceContract;
 import ch.quantasy.gateway.service.device.rotaryEncoder.RotaryEncoderServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.tinkerforge.device.led.LEDStripDeviceConfig;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.intent.rotaryEncoder.RotaryEncoderIntent;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +86,7 @@ public class AmbientLEDLightAgent extends GenericTinkerforgeAgent {
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract,getStackAddresses());
 
         RotaryEncoderServiceContract rotaryEncoderServiceContract = new RotaryEncoderServiceContract("je3", TinkerforgeDeviceClass.RotaryEncoder.toString());
@@ -105,9 +107,13 @@ public class AmbientLEDLightAgent extends GenericTinkerforgeAgent {
                 }
             }
         });
-        publishIntent(rotaryEncoderServiceContract.INTENT_COUNT_CALLBACK_PERIOD, 100);
+        RotaryEncoderIntent rotaryIntent=new RotaryEncoderIntent();
+        rotaryIntent.countCallbackPeriod=100L;
+        publishIntent(rotaryEncoderServiceContract.INTENT, rotaryIntent);
         LEDStripServiceContract ledServiceContract = new LEDStripServiceContract("jJE", TinkerforgeDeviceClass.LEDStrip.toString());
-        publishIntent(ledServiceContract.INTENT_CONFIG, config);
+        LedStripIntent ledIntent=new LedStripIntent();
+        ledIntent.config=config;
+        publishIntent(ledServiceContract.INTENT, ledIntent);
 
         waveList.add(new WaveAdjustableBrightness(this, ledServiceContract, config));
         for (WaveAdjustableBrightness wave : waveList) {

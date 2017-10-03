@@ -5,14 +5,14 @@
  */
 package ch.quantasy.mqtt.agents;
 
-import ch.quantasy.mqtt.gateway.client.AyamlClientContract;
+import ch.quantasy.mqtt.gateway.client.AyamlServiceContract;
 import java.util.Map;
 
 /**
  *
  * @author reto
  */
-public class GenericTinkerforgeAgentContract extends AyamlClientContract{
+public class GenericTinkerforgeAgentContract extends AyamlServiceContract{
 
     public GenericTinkerforgeAgentContract(String rootContext, String baseClass) {
         super("Agent",rootContext, baseClass);

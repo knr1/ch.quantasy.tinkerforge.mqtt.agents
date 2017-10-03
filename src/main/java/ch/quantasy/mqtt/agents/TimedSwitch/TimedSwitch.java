@@ -42,18 +42,19 @@
  */
 package ch.quantasy.mqtt.agents.TimedSwitch;
 
+import ch.quantasy.gateway.intent.remoteSwitch.RemoteSwitchIntent;
 import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.timer.DeviceTickerConfiguration;
-import ch.quantasy.tinkerforge.device.remoteSwitch.SwitchSocketCParameters;
+import ch.quantasy.gateway.intent.remoteSwitch.SwitchSocketCParameters;
 import java.net.URI;
 import java.time.LocalDateTime;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.time.Instant;
 import java.time.ZoneId;
 
@@ -79,7 +80,7 @@ public class TimedSwitch extends GenericTinkerforgeAgent {
             return;
         }
         TimerServiceContract timerContract = super.getTimerServiceContracts()[0];
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("untergeschoss"));
         subscribe(timerContract.EVENT_TICK + "/poolPump", (topic, payload) -> {
             GCEvent<Long>[] epochTimeInMillis = toEventArray(payload, Long.class);
@@ -109,20 +110,21 @@ public class TimedSwitch extends GenericTinkerforgeAgent {
     private SwitchSocketCParameters.SwitchTo state;
 
     private void switchMotor(SwitchSocketCParameters.SwitchTo state) {
+        RemoteSwitchIntent intent=new RemoteSwitchIntent();
         if (this.state == state) {
             return;
         }
         this.state = state;
-        SwitchSocketCParameters config = new SwitchSocketCParameters('L', (short) 2, state);
-        String topic = remoteSwitchServiceContract.INTENT_SWITCH_SOCKET_C;
-        publishIntent(topic, config);
+        intent.switchSocketCParameters = new SwitchSocketCParameters('L', (short) 2, state);
+        
+        publishIntent(remoteSwitchServiceContract.INTENT, intent);
         System.out.println("Switching: " + state);
     }
 
     private void switchAlwaysOn() {
-        SwitchSocketCParameters config = new SwitchSocketCParameters('L', (short) 1, SwitchSocketCParameters.SwitchTo.switchOn);
-        String topic = remoteSwitchServiceContract.INTENT_SWITCH_SOCKET_C;
-        publishIntent(topic, config);
+        RemoteSwitchIntent intent=new RemoteSwitchIntent();
+        intent.switchSocketCParameters= new SwitchSocketCParameters('L', (short) 1, SwitchSocketCParameters.SwitchTo.switchOn);
+        publishIntent(remoteSwitchServiceContract.INTENT, intent);
     }
 
     public static void main(String[] args) throws Throwable {

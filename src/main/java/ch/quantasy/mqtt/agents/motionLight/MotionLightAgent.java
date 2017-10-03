@@ -42,16 +42,17 @@
  */
 package ch.quantasy.mqtt.agents.motionLight;
 
+import ch.quantasy.gateway.intent.remoteSwitch.RemoteSwitchIntent;
 import ch.quantasy.gateway.service.device.motionDetector.MotionDetectorServiceContract;
 import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.timer.DeviceTickerCancel;
 import ch.quantasy.timer.DeviceTickerConfiguration;
-import ch.quantasy.tinkerforge.device.remoteSwitch.SwitchSocketCParameters;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.remoteSwitch.SwitchSocketCParameters;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import java.util.logging.Level;
@@ -84,7 +85,7 @@ public class MotionLightAgent extends GenericTinkerforgeAgent {
             return;
         }
         TimerServiceContract timerContract = super.getTimerServiceContracts()[0];
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("erdgeschoss"));
 
         subscribe(timerContract.EVENT_TICK + "/lights/cupboard", (topic, payload) -> {
@@ -92,11 +93,12 @@ public class MotionLightAgent extends GenericTinkerforgeAgent {
         });
 
         subscribe(motionDetectorServiceContract.EVENT_DETECTION_CYCLE_ENDED, (topic, payload) -> {
+            System.out.println(timerContract.INTENT_CONFIGURATION);
             publishIntent(timerContract.INTENT_CONFIGURATION, new DeviceTickerConfiguration("lights/cupboard", System.currentTimeMillis(), 1000 * 30, null, null));
 
         });
         subscribe(motionDetectorServiceContract.EVENT_MOTION_DETECTED, (topic, payload) -> {
-            publishIntent(timerContract.INTENT_CONFIGURATION, new DeviceTickerCancel("lights/cupboard"));
+            publishIntent(timerContract.INTENT_CANCEL, new DeviceTickerCancel("lights/cupboard"));
             switchLight(SwitchSocketCParameters.SwitchTo.switchOn);
         });
 
@@ -109,8 +111,9 @@ public class MotionLightAgent extends GenericTinkerforgeAgent {
         }
         this.state = state;
         SwitchSocketCParameters config = new SwitchSocketCParameters('D', (short) 3, state);
-        String topic = remoteSwitchServiceContract.INTENT_SWITCH_SOCKET_C;
-        publishIntent(topic, config);
+        RemoteSwitchIntent intent=new RemoteSwitchIntent();
+        intent.switchSocketCParameters=config;
+        publishIntent(remoteSwitchServiceContract.INTENT, intent);
         Logger.getLogger(MotionLightAgent.class.getName()).log(Level.INFO, "Switching:", state);
     }
 

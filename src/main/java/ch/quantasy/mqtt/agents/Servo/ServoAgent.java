@@ -43,16 +43,20 @@
 package ch.quantasy.mqtt.agents.Servo;
 
 import ch.quantasy.gateway.service.device.servo.ServoServiceContract;
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.tinkerforge.device.servo.Degree;
-import ch.quantasy.tinkerforge.device.servo.PulseWidth;
-import ch.quantasy.tinkerforge.device.servo.Servo;
+import ch.quantasy.gateway.intent.servo.Degree;
+import ch.quantasy.gateway.intent.servo.PulseWidth;
+import ch.quantasy.gateway.intent.servo.Servo;
+import ch.quantasy.gateway.intent.servo.ServoIntent;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  *
@@ -73,12 +77,15 @@ public class ServoAgent extends GenericTinkerforgeAgent {
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("localhost"));
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
 
-        publishIntent(servoServiceContract.INTENT_STATUS_LED, false);
+        ServoIntent servoIntent = new ServoIntent();
+        servoIntent.statusLED = true;
+        publishIntent(servoServiceContract.INTENT, servoIntent);
         Thread.sleep(2000);
-        publishIntent(servoServiceContract.INTENT_STATUS_LED, true);
+        servoIntent.statusLED = false;
+        publishIntent(servoServiceContract.INTENT, servoIntent);
         Servo[] servos = new Servo[2];
         servos[0] = new Servo(0);
         servos[1] = new Servo(1);
@@ -93,15 +100,19 @@ public class ServoAgent extends GenericTinkerforgeAgent {
         servos[1].setPeriod(20000);
         servos[1].setEnabled(true);
 
+        Set<Servo> servoSet = new HashSet<>();
+        servoSet.addAll(Arrays.asList(servos));
+        servoIntent.servos = servoSet;
+
         for (int i = 0; i < 5; i++) {
             servos[i % 2].setPosition((short) 9000);
             servos[i % 2].setVelocity(6500);
-            publishIntent(servoServiceContract.INTENT_SERVOS, new Servo[]{servos[i % 2]});
+
+            publishIntent(servoServiceContract.INTENT, servoIntent);
             Thread.sleep(5000);
             servos[i % 2].setPosition((short) -9000);
             servos[i % 2].setVelocity(65535);
-
-            publishIntent(servoServiceContract.INTENT_SERVOS, new Servo[]{servos[i % 2]});
+            publishIntent(servoServiceContract.INTENT, servoIntent);
             Thread.sleep(1000);
         }
         for (int i = 0; i < 5; i++) {
@@ -109,18 +120,18 @@ public class ServoAgent extends GenericTinkerforgeAgent {
             servos[0].setVelocity(6500);
             servos[1].setPosition((short) 9000);
             servos[1].setVelocity(6500);
-            publishIntent(servoServiceContract.INTENT_SERVOS, servos);
+            publishIntent(servoServiceContract.INTENT, servoIntent);
             Thread.sleep(5000);
             servos[0].setPosition((short) -9000);
             servos[0].setVelocity(65535);
             servos[1].setPosition((short) -9000);
             servos[1].setVelocity(65535);
-            publishIntent(servoServiceContract.INTENT_SERVOS, servos);
+            publishIntent(servoServiceContract.INTENT, servoIntent);
             Thread.sleep(1000);
         }
         servos[0].setEnabled(false);
         servos[1].setEnabled(false);
-        publishIntent(servoServiceContract.INTENT_SERVOS, servos);
+        publishIntent(servoServiceContract.INTENT, servoIntent);
 
     }
 

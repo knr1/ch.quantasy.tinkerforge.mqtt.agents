@@ -44,8 +44,9 @@ package ch.quantasy.mqtt.agents.led.abilities;
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
-import ch.quantasy.tinkerforge.device.led.LEDFrame;
-import ch.quantasy.tinkerforge.device.led.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.ledStrip.LEDFrame;
+import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.intent.ledStrip.LedStripIntent;
 import java.util.ArrayList;
 import java.util.List;
 import ch.quantasy.mqtt.gateway.client.MessageReceiver;
@@ -66,7 +67,10 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
         this.config = config;
         this.gatewayClient = gatewayClient;
         gatewayClient.subscribe(ledServiceContract.EVENT_LEDs_RENDERED, this);
-        gatewayClient.publishIntent(ledServiceContract.INTENT_CONFIG, config);
+        LedStripIntent intent = new LedStripIntent();
+        intent.config = config;
+        gatewayClient.publishIntent(ledServiceContract.INTENT, intent);
+
     }
 
     public LEDStripServiceContract getLedServiceContract() {
@@ -86,22 +90,27 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
     }
 
     public LEDFrame getNewLEDFrame() {
+
         return new LEDFrame(config.getChipType().getNumberOfChannels(), config.getNumberOfLEDs());
     }
 
     public void setLEDFrame(LEDFrame ledFrame) {
-        gatewayClient.publishIntent(ledServiceContract.INTENT_FRAME, new LEDFrame(ledFrame));
+        LedStripIntent intent = new LedStripIntent();
+        intent.LEDFrame = ledFrame;
+        gatewayClient.publishIntent(ledServiceContract.INTENT, intent);
     }
 
     public void setLEDFrames(List<LEDFrame> ledFrames) {
         List<LEDFrame> frames = new ArrayList<>(ledFrames);
-        gatewayClient.publishIntent(ledServiceContract.INTENT_FRAMES, frames.toArray(new LEDFrame[frames.size()]));
+        LedStripIntent intent = new LedStripIntent();
+        intent.LEDFrames = frames.toArray(new LEDFrame[frames.size()]);
+        gatewayClient.publishIntent(ledServiceContract.INTENT, intent);
     }
 
     @Override
     public void messageReceived(String topic, byte[] payload) throws Exception {
         synchronized (this) {
-            GCEvent<Integer>[] framesRendered = (GCEvent<Integer>[])gatewayClient.toEventArray(payload, Integer.class);
+            GCEvent<Integer>[] framesRendered = (GCEvent<Integer>[]) gatewayClient.toEventArray(payload, Integer.class);
             if (framesRendered.length > 0) {
                 counter = framesRendered[0].getValue();
                 this.notifyAll();

@@ -40,75 +40,58 @@
  *  *
  *  *
  */
-package ch.quantasy.mqtt.agents.led;
+package ch.quantasy.mqtt.agents.dualRelay;
 
-import ch.quantasy.mqtt.agents.led.abilities.AnLEDAbility;
-import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
+import ch.quantasy.gateway.intent.dualRelay.DeviceSelectedRelayState;
+import ch.quantasy.gateway.intent.dualRelay.DualRelayIntent;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.agents.led.abilities.ColidingDots;
-import ch.quantasy.mqtt.gateway.client.GCEvent;
-import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
 import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
+import java.util.HashSet;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackIntent;
+import ch.quantasy.gateway.service.device.dualRelay.DualRelayServiceContract;
 
 /**
  *
  * @author reto
  */
-public class RedBlueColliding extends GenericTinkerforgeAgent {
+public class DualRelayAgent extends GenericTinkerforgeAgent {
 
-    private final List<AnLEDAbility> abilities;
-    private final int frameDurationInMillis;
-    private final int amountOfLEDs;
+    private StackManagerServiceContract managerServiceContract;
 
-    public RedBlueColliding(URI mqttURI) throws MqttException {
-        super(mqttURI, "433407hfra", new GenericTinkerforgeAgentContract("AmbientLEDLight", "lulu"));
+    public DualRelayAgent(URI mqttURI) throws MqttException, InterruptedException {
+        super(mqttURI, "398h3jöi", new GenericTinkerforgeAgentContract("DualRelay", "dualR"));
+
         connect();
-
-        frameDurationInMillis = 10;
-        amountOfLEDs = 50;
-        abilities = new ArrayList<>();
-
-        //connectRemoteServices(new TinkerforgeStackAddress("lights01"));
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
             return;
         }
 
-        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("localhost"));
+        managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        TinkerforgeStackIntent intent = new TinkerforgeStackIntent(true, new TinkerforgeStackAddress("localhost"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
+        DualRelayServiceContract contract = new DualRelayServiceContract("bVu", TinkerforgeDeviceClass.DualRelay.toString());
 
-        // LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2811, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BRG);
-        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2801, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.RGB);
-
-        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("wSj", TinkerforgeDeviceClass.LEDStrip.toString());
-        // LEDStripServiceContract ledServiceContract2 = new LEDStripServiceContract("p5z", TinkerforgeDeviceClass.LEDStrip.toString());
-
-        abilities.add(new ColidingDots(this, ledServiceContract1, config));
-        //  waveList.add(new Wave(ledServiceContract2, config));
-
-        subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
-            GCEvent<Long>[] lag = (GCEvent<Long>[]) toEventArray(payload, Boolean.class);
-
-            Logger.getLogger(AmbientLEDLightAgent.class.getName()).log(Level.INFO, "Laging", Arrays.toString(lag));
-        });
-
-        for (AnLEDAbility ability : abilities) {
-            new Thread(ability).start();
-        }
+        DualRelayIntent dualRelayIntent = new DualRelayIntent();
+        Set<DeviceSelectedRelayState> selectedRelayStates = new HashSet<>();
+        selectedRelayStates.add(new DeviceSelectedRelayState((short) 1, true));
+        dualRelayIntent.selectedRelayStates = selectedRelayStates;
+        publishIntent(contract.INTENT, dualRelayIntent);
 
     }
 
-    public static void main(String[] args) throws Throwable {
+    public void finish() {
+        super.removeTinkerforgeStackFrom(managerServiceContract, new TinkerforgeStackAddress("localhost"));
+        return;
+    }
+
+    public static void main(String... args) throws Throwable {
         URI mqttURI = URI.create("tcp://127.0.0.1:1883");
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);
@@ -116,7 +99,9 @@ public class RedBlueColliding extends GenericTinkerforgeAgent {
             System.out.printf("Per default, 'tcp://127.0.0.1:1883' is chosen.\nYou can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883\n");
         }
         System.out.printf("\n%s will be used as broker address.\n", mqttURI);
-        RedBlueColliding agent = new RedBlueColliding(mqttURI);
+        DualRelayAgent agent = new DualRelayAgent(mqttURI);
         System.in.read();
+        agent.finish();
     }
+
 }

@@ -42,10 +42,10 @@
  */
 package ch.quantasy.mqtt.agents.connector;
 
-import ch.quantasy.gateway.service.stackManager.ManagerServiceContract;
+import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -55,22 +55,22 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  */
 public class Connector extends GenericTinkerforgeAgent {
 
-    private final ManagerServiceContract managerServiceContract;
+    private final StackManagerServiceContract managerServiceContract;
 
     public Connector(URI mqttURI) throws MqttException {
         super(mqttURI, "f94kjf93d9", new GenericTinkerforgeAgentContract("Connector", "euo"));
         connect();
-        managerServiceContract = new ManagerServiceContract("Manager");
+        managerServiceContract = new StackManagerServiceContract("Manager");
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
             return;
         }
 
-        ManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("erdgeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("lights01"));
+        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        //connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("erdgeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("lights01"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
 
     }
-
 
     public static void main(String[] args) throws Throwable {
         URI mqttURI = URI.create("tcp://localhost:1883");
