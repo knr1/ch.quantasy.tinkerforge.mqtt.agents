@@ -42,7 +42,7 @@
  */
 package ch.quantasy.mqtt.agents.TimedSwitch;
 
-import ch.quantasy.gateway.intent.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.message.intent.remoteSwitch.RemoteSwitchIntent;
 import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
@@ -50,11 +50,11 @@ import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.timer.DeviceTickerConfiguration;
-import ch.quantasy.gateway.intent.remoteSwitch.SwitchSocketCParameters;
+import ch.quantasy.gateway.message.intent.remoteSwitch.SwitchSocketCParameters;
 import java.net.URI;
 import java.time.LocalDateTime;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
 import java.time.Instant;
 import java.time.ZoneId;
 
@@ -82,22 +82,22 @@ public class TimedSwitch extends GenericTinkerforgeAgent {
         TimerServiceContract timerContract = super.getTimerServiceContracts()[0];
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("untergeschoss"));
-        subscribe(timerContract.EVENT_TICK + "/poolPump", (topic, payload) -> {
-            GCEvent<Long>[] epochTimeInMillis = toEventArray(payload, Long.class);
-            LocalDateTime theDate
-                    = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTimeInMillis[0].getTimestamp()), ZoneId.systemDefault());
-            int hour = theDate.getHour();
-            System.out.printf("Time: %s -> Switch: ", theDate);
-            if (state == SwitchSocketCParameters.SwitchTo.switchOn || (hour > 21 || hour < 7)) {
-                switchMotor(SwitchSocketCParameters.SwitchTo.switchOff);
-                state = SwitchSocketCParameters.SwitchTo.switchOff;
-                System.out.println("off");
-            } else {
-                switchMotor(SwitchSocketCParameters.SwitchTo.switchOn);
-                state = SwitchSocketCParameters.SwitchTo.switchOn;
-                System.out.println("on");
-            }
-        });
+//        subscribe(timerContract.EVENT_TICK + "/poolPump", (topic, payload) -> {
+//            GCEvent<Long>[] epochTimeInMillis = toEventArray(payload, Long.class);
+//            LocalDateTime theDate
+//                    = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTimeInMillis[0].getTimestamp()), ZoneId.systemDefault());
+//            int hour = theDate.getHour();
+//            System.out.printf("Time: %s -> Switch: ", theDate);
+//            if (state == SwitchSocketCParameters.SwitchTo.switchOn || (hour > 21 || hour < 7)) {
+//                switchMotor(SwitchSocketCParameters.SwitchTo.switchOff);
+//                state = SwitchSocketCParameters.SwitchTo.switchOff;
+//                System.out.println("off");
+//            } else {
+//                switchMotor(SwitchSocketCParameters.SwitchTo.switchOn);
+//                state = SwitchSocketCParameters.SwitchTo.switchOn;
+//                System.out.println("on");
+//            }
+//        });
 
         subscribe(timerContract.EVENT_TICK + "/garden", (topic, payload) -> {
             switchAlwaysOn();

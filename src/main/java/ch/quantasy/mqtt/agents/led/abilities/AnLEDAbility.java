@@ -44,12 +44,12 @@ package ch.quantasy.mqtt.agents.led.abilities;
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
-import ch.quantasy.gateway.intent.ledStrip.LEDFrame;
-import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.intent.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.message.intent.ledStrip.LEDFrame;
+import ch.quantasy.gateway.message.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.message.intent.ledStrip.LedStripIntent;
 import java.util.ArrayList;
 import java.util.List;
-import ch.quantasy.mqtt.gateway.client.MessageReceiver;
+import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 
 /**
  *
@@ -109,13 +109,13 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
 
     @Override
     public void messageReceived(String topic, byte[] payload) throws Exception {
-        synchronized (this) {
-            GCEvent<Integer>[] framesRendered = (GCEvent<Integer>[]) gatewayClient.toEventArray(payload, Integer.class);
-            if (framesRendered.length > 0) {
-                counter = framesRendered[0].getValue();
-                this.notifyAll();
-            }
-        }
+//        synchronized (this) {
+//            GCEvent<Integer>[] framesRendered = (GCEvent<Integer>[]) gatewayClient.toMessageSet(payload, Integer.class);
+//            if (framesRendered.length > 0) {
+//                counter = framesRendered[0].getValue();
+//                this.notifyAll();
+//            }
+//        }
     }
 
 }

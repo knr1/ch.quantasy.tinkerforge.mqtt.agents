@@ -50,8 +50,8 @@ import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.agents.led.abilities.ColidingDots;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.intent.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.intent.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,11 +96,11 @@ public class RedBlueColliding extends GenericTinkerforgeAgent {
         abilities.add(new ColidingDots(this, ledServiceContract1, config));
         //  waveList.add(new Wave(ledServiceContract2, config));
 
-        subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
-            GCEvent<Long>[] lag = (GCEvent<Long>[]) toEventArray(payload, Boolean.class);
-
-            Logger.getLogger(AmbientLEDLightAgent.class.getName()).log(Level.INFO, "Laging", Arrays.toString(lag));
-        });
+//        subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
+//            GCEvent<Long>[] lag = (GCEvent<Long>[]) toEventArray(payload, Boolean.class);
+//
+//            Logger.getLogger(AmbientLEDLightAgent.class.getName()).log(Level.INFO, "Laging", Arrays.toString(lag));
+//        });
 
         for (AnLEDAbility ability : abilities) {
             new Thread(ability).start();

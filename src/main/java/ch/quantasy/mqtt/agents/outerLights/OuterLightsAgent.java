@@ -42,7 +42,7 @@
  */
 package ch.quantasy.mqtt.agents.outerLights;
 
-import ch.quantasy.gateway.intent.ambientLight.AmbientLightIntent;
+import ch.quantasy.gateway.message.intent.ambientLight.AmbientLightIntent;
 import ch.quantasy.gateway.service.device.ambientLight.AmbientLightServiceContract;
 import ch.quantasy.gateway.service.device.dc.DCServiceContract;
 import ch.quantasy.gateway.service.device.motionDetector.MotionDetectorServiceContract;
@@ -51,14 +51,14 @@ import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.GCEvent;
-import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.mqtt.gateway.client.MessageReceiver;
-import ch.quantasy.gateway.intent.ambientLight.DeviceIlluminanceCallbackThreshold;
-import ch.quantasy.gateway.intent.dc.DCIntent;
+import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
+import ch.quantasy.gateway.message.intent.ambientLight.DeviceIlluminanceCallbackThreshold;
+import ch.quantasy.gateway.message.intent.dc.DCIntent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,20 +129,20 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
             ambientIntent.debouncePeriod = 5000L;
             ambientIntent.illuminanceThreshold = new DeviceIlluminanceCallbackThreshold('o', 20, 100);
             publishIntent(ambientLightServiceContract.INTENT, ambientIntent);
-            subscribe(ambientLightServiceContract.EVENT_ILLUMINANCE_REACHED, new MessageReceiver() {
-                @Override
-                public void messageReceived(String topic, byte[] payload) throws Exception {
-                    GCEvent<Integer>[] illuminance = toEventArray(payload, Integer.class);
-                    if (illuminance[0].getValue() < 100) {
-                        delayedOff.setPaused(false);
-                    } else if (illuminance[0].getValue() > 20) {
-                        delayedOff.setPaused(true);
-                    }
-                    Logger.getLogger(OuterLightsAgent.class.getName()).log(Level.INFO, "Illuminance: ", illuminance[0]);
-                }
-            }
-            );
-        }
+//            subscribe(ambientLightServiceContract.EVENT_ILLUMINANCE_REACHED, new MessageReceiver() {
+//                @Override
+//                public void messageReceived(String topic, byte[] payload) throws Exception {
+//                    GCEvent<Integer>[] illuminance = toEventArray(payload, Integer.class);
+//                    if (illuminance[0].getValue() < 100) {
+//                        delayedOff.setPaused(false);
+//                    } else if (illuminance[0].getValue() > 20) {
+//                        delayedOff.setPaused(true);
+//                    }
+//                    Logger.getLogger(OuterLightsAgent.class.getName()).log(Level.INFO, "Illuminance: ", illuminance[0]);
+//                }
+//            }
+//            );
+       }
     }
 
     class DelayedOff implements Runnable {

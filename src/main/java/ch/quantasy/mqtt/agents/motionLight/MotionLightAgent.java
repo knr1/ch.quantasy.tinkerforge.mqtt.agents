@@ -42,7 +42,7 @@
  */
 package ch.quantasy.mqtt.agents.motionLight;
 
-import ch.quantasy.gateway.intent.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.message.intent.remoteSwitch.RemoteSwitchIntent;
 import ch.quantasy.gateway.service.device.motionDetector.MotionDetectorServiceContract;
 import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
@@ -51,8 +51,8 @@ import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.timer.DeviceTickerCancel;
 import ch.quantasy.timer.DeviceTickerConfiguration;
-import ch.quantasy.gateway.intent.remoteSwitch.SwitchSocketCParameters;
-import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.intent.remoteSwitch.SwitchSocketCParameters;
+import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import java.util.logging.Level;

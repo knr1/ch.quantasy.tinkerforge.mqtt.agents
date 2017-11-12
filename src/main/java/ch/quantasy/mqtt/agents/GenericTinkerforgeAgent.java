@@ -7,10 +7,13 @@ package ch.quantasy.mqtt.agents;
 
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
-import ch.quantasy.mqtt.gateway.client.AyamlServiceContract;
+import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.gateway.intent.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.intent.stack.TinkerforgeStackIntent;
+import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackIntent;
+import ch.quantasy.mqtt.gateway.client.message.Intent;
+import ch.quantasy.mqtt.gateway.client.message.MessageCollector;
+import ch.quantasy.mqtt.gateway.client.message.PublishingMessageCollector;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,14 +33,31 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract>
     private final Map<StackManagerServiceContract, Set<TinkerforgeStackAddress>> managedStacks;
     private final Set<TimerServiceContract> timerServiceContracts;
 
+    private MessageCollector intentCollector;
+    private PublishingMessageCollector intentPublisher;
+
     public GenericTinkerforgeAgent(URI mqttURI, String clientID, AyamlServiceContract contract) throws MqttException {
         super(mqttURI, clientID, contract);
+        intentCollector = new MessageCollector();
+        intentPublisher = new PublishingMessageCollector(intentCollector, this);
         stacks = new HashMap<>();
         tinkerforgeManagerServiceContracts = new HashSet<>();
         managedStacks = new HashMap<>();
         timerServiceContracts = new HashSet<>();
     }
 
+    public void publishIntent(String topic,Intent intent){
+        intentPublisher.readyToPublish(topic, intent);
+    }
+    
+    public void collectIntent(String topic,Intent intent){
+        intentCollector.add(topic, intent);
+    }
+    
+    public void publishIntent(String topic){
+        intentPublisher.readyToPublish(topic);
+    }
+        
     @Override
     public void connect() throws MqttException {
         super.connect();

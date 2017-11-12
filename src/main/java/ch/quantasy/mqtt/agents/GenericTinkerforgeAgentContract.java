@@ -5,7 +5,7 @@
  */
 package ch.quantasy.mqtt.agents;
 
-import ch.quantasy.mqtt.gateway.client.AyamlServiceContract;
+import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import java.util.Map;
 
 /**
