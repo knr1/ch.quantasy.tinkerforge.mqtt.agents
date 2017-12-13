@@ -5,12 +5,13 @@
  */
 package ch.quantasy.mqtt.agents;
 
+import ch.quantasy.gateway.message.stackManager.ConnectStatus;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackIntent;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackIntent;
 import ch.quantasy.mqtt.gateway.client.message.Intent;
 import ch.quantasy.mqtt.gateway.client.message.MessageCollector;
 import ch.quantasy.mqtt.gateway.client.message.PublishingMessageCollector;
@@ -46,18 +47,18 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract>
         timerServiceContracts = new HashSet<>();
     }
 
-    public void publishIntent(String topic,Intent intent){
+    public void publishIntent(String topic, Intent intent) {
         intentPublisher.readyToPublish(topic, intent);
     }
-    
-    public void collectIntent(String topic,Intent intent){
+
+    public void collectIntent(String topic, Intent intent) {
         intentCollector.add(topic, intent);
     }
-    
-    public void publishIntent(String topic){
+
+    public void publishIntent(String topic) {
         intentPublisher.readyToPublish(topic);
     }
-        
+
     @Override
     public void connect() throws MqttException {
         super.connect();
@@ -82,14 +83,18 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract>
                 String[] stackAddressParts = managedStackAddressParts[7].split(":");
                 System.out.println(Arrays.toString(stackAddressParts));
                 if (payload != null) {
-                    addresses.add(new TinkerforgeStackAddress(stackAddressParts[0], Integer.parseInt(stackAddressParts[1])));
-                    System.out.println(stackAddressParts[0] + " available.");
-
-                } else {
-                    managedStacks.remove(new TinkerforgeStackAddress(stackAddressParts[0], Integer.parseInt(stackAddressParts[1])));
-                    System.out.println(stackAddressParts[0] + " gone.");
+                    MessageCollector<ConnectStatus> collector = new MessageCollector<>();
+                    collector.add(topic, (Set<ConnectStatus>) toMessageSet(payload, ConnectStatus.class));
+                    ConnectStatus addressStatus = collector.retrieveFirstMessage(topic);
+                    if (addressStatus.value) {
+                        addresses.add(new TinkerforgeStackAddress(stackAddressParts[0], Integer.parseInt(stackAddressParts[1])));
+                        System.out.println(stackAddressParts[0] + " available.");
+                        managedStacks.notifyAll();
+                        return;
+                    }
                 }
-                managedStacks.notifyAll();
+                managedStacks.remove(new TinkerforgeStackAddress(stackAddressParts[0], Integer.parseInt(stackAddressParts[1])));
+                System.out.println(stackAddressParts[0] + " gone.");
             }
         });
         subscribe("Timer/Tick/U/+/S/connection", (topic, payload) -> {
@@ -167,9 +172,9 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract>
         System.out.println("Subscribing to " + address);
         subscribe(managerServiceContract.STATUS_STACK_ADDRESS + "/" + stackName, (topic, payload) -> {
             Boolean isConnected = false;
-            if (payload.length > 0) {
-                isConnected = getMapper().readValue(payload, Boolean.class);
-            }
+            MessageCollector<ConnectStatus> collector = new MessageCollector();
+            collector.add(topic, (Set<ConnectStatus>) toMessageSet(payload, ConnectStatus.class));
+            isConnected = collector.retrieveFirstMessage(topic).value;
             synchronized (stacks) {
                 stacks.put(address, isConnected);
                 stacks.notifyAll();

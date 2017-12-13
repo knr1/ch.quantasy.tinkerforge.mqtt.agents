@@ -49,15 +49,16 @@ import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.agents.led.abilities.Fire;
-import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.intent.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.intent.ledStrip.LedStripIntent;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.message.ledStrip.LagingEvent;
+import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -94,10 +95,10 @@ public class LEDs20W extends GenericTinkerforgeAgent {
 
         abilities.add(new Fire(this, ledServiceContract1, config));
 
-//        subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
-//            GCEvent<Long>[] lag = (GCEvent<Long>[]) toEventArray(payload, Boolean.class);
-//            Logger.getLogger(LEDs20W.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag));
-//        });
+        subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
+            SortedSet<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);
+            Logger.getLogger(LEDs20W.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag.toArray(new Object[0])));
+        });
         for (AnLEDAbility ability : abilities) {
             new Thread(ability).start();
         }

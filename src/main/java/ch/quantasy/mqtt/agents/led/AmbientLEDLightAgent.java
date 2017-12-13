@@ -49,17 +49,18 @@ import ch.quantasy.gateway.service.device.rotaryEncoder.RotaryEncoderServiceCont
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.intent.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.intent.ledStrip.LedStripIntent;
-import ch.quantasy.gateway.message.intent.rotaryEncoder.RotaryEncoderIntent;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.message.rotaryEncoder.CountEvent;
+import ch.quantasy.gateway.message.rotaryEncoder.RotaryEncoderIntent;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
+import java.util.SortedSet;
 
 /**
  *
@@ -167,15 +168,15 @@ public class AmbientLEDLightAgent extends GenericTinkerforgeAgent {
 
         private Integer latestCount;
 
-        @Override
+         @Override
         public void messageReceived(String topic, byte[] mm) throws Exception {
-//            GCEvent<Integer>[] countEvents = toEventArray(mm, Integer.class);
-//            if (latestCount == null) {
-//                latestCount = countEvents[0].getValue();
-//            }
-//            int difference = latestCount;
-//            latestCount = countEvents[0].getValue();
-//            changeAmbientBrightness((difference - latestCount) / 100.0);
+            SortedSet<CountEvent> countEvents= toMessageSet(mm, CountEvent.class);
+            if (latestCount == null) {
+                latestCount = countEvents.last().getValue();
+            }
+            int difference = latestCount;
+            latestCount = countEvents.last().getValue();
+            changeAmbientBrightness((difference - latestCount) / 100.0);
         }
 
     }

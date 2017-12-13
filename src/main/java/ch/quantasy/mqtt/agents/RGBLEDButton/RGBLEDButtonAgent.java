@@ -40,75 +40,70 @@
  *  *
  *  *
  */
-package ch.quantasy.mqtt.agents.led;
+package ch.quantasy.mqtt.agents.RGBLEDButton;
 
-import ch.quantasy.mqtt.agents.led.abilities.AnLEDAbility;
-import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
+import ch.quantasy.gateway.message.RGBLEDButton.ButtonState;
+import ch.quantasy.gateway.message.RGBLEDButton.ButtonEvent;
+import ch.quantasy.gateway.message.RGBLEDButton.RGBColor;
+import ch.quantasy.gateway.message.RGBLEDButton.RGBLEDButtonIntent;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.service.device.RGBLEDButton.RGBLEDButtonServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.agents.led.abilities.SparklingFire;
-import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.ledStrip.LagingEvent;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.mqtt.gateway.client.message.MessageCollector;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 /**
  *
  * @author reto
  */
-public class XMasLEDLightAgent01 extends GenericTinkerforgeAgent {
+public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
 
-    private final List<AnLEDAbility> abilities;
-    private final int frameDurationInMillis;
-    private final int amountOfLEDs;
+    private StackManagerServiceContract managerServiceContract;
 
-    public XMasLEDLightAgent01(URI mqttURI) throws MqttException {
-        super(mqttURI, "xmas4985", new GenericTinkerforgeAgentContract("XMasLED", "XMasLed01"));
+    public RGBLEDButtonAgent(URI mqttURI) throws MqttException, InterruptedException {
+        super(mqttURI, "rtbtzihl", new GenericTinkerforgeAgentContract("RGBLEDButton", "flipper"));
+
         connect();
-        frameDurationInMillis = 100;
-        amountOfLEDs = 200;
-        abilities = new ArrayList<>();
-
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
             return;
         }
 
-        StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("lights02"));
+        managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
+        RGBLEDButtonServiceContract button = new RGBLEDButtonServiceContract("D3Y");
 
-        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2801, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.RGB);
-
-        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("jGL", TinkerforgeDeviceClass.LEDStrip.toString());
-
-        abilities.add(new SparklingFire(this, ledServiceContract1, config));
-
-        subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
-            SortedSet<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);
-            Logger.getLogger(XMasLEDLightAgent01.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag.toArray(new Object[0])));
+        MessageCollector<ButtonEvent> mc = new MessageCollector();
+        {
+            RGBLEDButtonIntent buttonIntent = new RGBLEDButtonIntent();
+            buttonIntent.color = new RGBColor(0, 100, 255);
+            publishIntent(button.INTENT, buttonIntent);
+        }
+        subscribe(button.EVENT_BUTTON, (topic, payload) -> {
+            mc.add(topic, (Set<ButtonEvent>) toMessageSet(payload, button.getMessageClassFor(button.EVENT_BUTTON)));
+            ButtonEvent event = mc.retrieveLastMessage(topic);
+            RGBLEDButtonIntent buttonIntent = new RGBLEDButtonIntent();
+            if (event.getState() == ButtonState.PRESSED) {
+                buttonIntent.color = new RGBColor(100, 255, 0);
+            }
+            if (event.getState() == ButtonState.RELEASED) {
+                buttonIntent.color = new RGBColor(255, 80, 0);
+            }
+            publishIntent(button.INTENT, buttonIntent);
         });
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(XMasLEDLightAgent01.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        for (AnLEDAbility ability : abilities) {
-            new Thread(ability).start();
-        }
 
     }
 
-    public static void main(String[] args) throws Throwable {
+    public void finish() {
+        super.removeTinkerforgeStackFrom(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
+        return;
+    }
+
+    public static void main(String... args) throws Throwable {
         URI mqttURI = URI.create("tcp://127.0.0.1:1883");
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);
@@ -116,7 +111,9 @@ public class XMasLEDLightAgent01 extends GenericTinkerforgeAgent {
             System.out.printf("Per default, 'tcp://127.0.0.1:1883' is chosen.\nYou can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883\n");
         }
         System.out.printf("\n%s will be used as broker address.\n", mqttURI);
-        XMasLEDLightAgent01 agent = new XMasLEDLightAgent01(mqttURI);
+        RGBLEDButtonAgent agent = new RGBLEDButtonAgent(mqttURI);
         System.in.read();
+        agent.finish();
     }
+
 }

@@ -47,15 +47,16 @@ import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.intent.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.message.rotaryEncoder.CountEvent;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
+import java.util.SortedSet;
 
 /**
  *
@@ -78,21 +79,20 @@ public class LEDLights01 extends GenericTinkerforgeAgent {
         delayInMinutes = 1;
         waveList = new ArrayList<>();
 
-       if (super.getTinkerforgeManagerServiceContracts().length == 0) {
+        if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
             return;
         }
 
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("ledLights01"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("ledLights01"));
 
         LEDStripDeviceConfig p34Config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, p34AmountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BRGW);
         LEDStripServiceContract p34LedServiceContract = new LEDStripServiceContract("p34", TinkerforgeDeviceClass.LEDStrip.toString());
-        
+
         LEDStripDeviceConfig jHWConfig = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, jHWAmountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BRGW);
         LEDStripServiceContract jHWLedServiceContract = new LEDStripServiceContract("jHW", TinkerforgeDeviceClass.LEDStrip.toString());
-        
-        
+
         waveList.add(new WaveAdjustableBrightness(this, p34LedServiceContract, p34Config));
         waveList.add(new WaveAdjustableBrightness(this, jHWLedServiceContract, jHWConfig));
         for (WaveAdjustableBrightness wave : waveList) {
@@ -102,7 +102,7 @@ public class LEDLights01 extends GenericTinkerforgeAgent {
         }
     }
 
-    public void changeAmbientBrithness(double ambientBrightness) {
+    public void changeAmbientBrightness(double ambientBrightness) {
         for (WaveAdjustableBrightness wave : waveList) {
             wave.changeAmbientBrightness(ambientBrightness);
         }
@@ -114,15 +114,14 @@ public class LEDLights01 extends GenericTinkerforgeAgent {
 
         @Override
         public void messageReceived(String topic, byte[] mm) throws Exception {
-//            GCEvent<Integer>[] countEvents = toEventArray(mm, Integer.class);
-//            if (latestCount == null) {
-//                latestCount = countEvents[0].getValue();
-//            }
-//            int difference = latestCount;
-//            latestCount = countEvents[0].getValue();
-//            changeAmbientBrithness((difference - latestCount) / 100.0);
+            SortedSet<CountEvent> countEvents = toMessageSet(mm, CountEvent.class);
+            if (latestCount == null) {
+                latestCount = countEvents.last().getValue();
+            }
+            int difference = latestCount;
+            latestCount = countEvents.last().getValue();
+            changeAmbientBrightness((difference - latestCount) / 100.0);
         }
-
     }
 
     public static void main(String[] args) throws Throwable {

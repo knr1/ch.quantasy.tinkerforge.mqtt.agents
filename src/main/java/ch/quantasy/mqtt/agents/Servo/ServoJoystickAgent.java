@@ -42,25 +42,25 @@
  */
 package ch.quantasy.mqtt.agents.Servo;
 
-import ch.quantasy.gateway.message.intent.joystick.JoystickIntent;
-import ch.quantasy.gateway.service.device.joystick.JoystickService;
+import ch.quantasy.gateway.message.joystick.JoystickIntent;
+import ch.quantasy.gateway.message.joystick.PositionEvent;
 import ch.quantasy.gateway.service.device.joystick.JoystickServiceContract;
 import ch.quantasy.gateway.service.device.servo.ServoServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.gateway.message.intent.servo.Degree;
-import ch.quantasy.gateway.message.intent.servo.PulseWidth;
-import ch.quantasy.gateway.message.intent.servo.Servo;
-import ch.quantasy.gateway.message.intent.servo.ServoIntent;
+import ch.quantasy.gateway.message.servo.Degree;
+import ch.quantasy.gateway.message.servo.PulseWidth;
+import ch.quantasy.gateway.message.servo.Servo;
+import ch.quantasy.gateway.message.servo.ServoIntent;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.SortedSet;
 
 /**
  *
@@ -112,45 +112,45 @@ public class ServoJoystickAgent extends GenericTinkerforgeAgent {
         joystickIntent.calibrate=true;
         publishIntent(joystickServiceContract.INTENT, joystickIntent);
 
-//        subscribe(joystickServiceContract.EVENT_POSITION, (topic, payload) -> {
-//            GCEvent<JoystickService.Position>[] position = toMessageSet(payload, JoystickService.Position.class);
-//            int joystickX = position[0].getValue().getX();
-//            int joystickY = position[0].getValue().getY();
-//
-//            if (joystickX > 0) {
-//                servos[0].setPosition((short) 32767);
-//            }
-//            if (joystickX < 0) {
-//                servos[0].setPosition((short) -32767);
-//            }
-//            int velocityX = (int) (Math.abs((65535.0 / (100 * 100)) * (joystickX * joystickX)) + 0.5);
-//            if (joystickY > 0) {
-//                servos[1].setPosition((short) 32767);
-//            }
-//            if (joystickY < 0) {
-//                servos[1].setPosition((short) -32767);
-//            }
-//            int velocityY = (int) (Math.abs((65535.0 / (100 * 100)) * (joystickY * joystickY)) + 0.5);
-//
-//            if (velocityX > 2) {
-//                servos[0].setVelocity(velocityX);
-//                servos[0].setEnabled(true);
-//
-//            } else {
-//                servos[0].setVelocity(0);
-//                servos[0].setEnabled(false);
-//            }
-//            if (velocityY > 2) {
-//                servos[1].setVelocity(velocityY);
-//                servos[1].setEnabled(true);
-//
-//            } else {
-//                servos[1].setVelocity(0);
-//                servos[1].setEnabled(false);
-//
-//            }
-//            publishIntent(servoServiceContract.INTENT, servoIntent);
-//        });
+        subscribe(joystickServiceContract.EVENT_POSITION, (topic, payload) -> {
+            SortedSet<PositionEvent> position = toMessageSet(payload, PositionEvent.class);
+            int joystickX = position.last().getX();
+            int joystickY = position.last().getY();
+
+            if (joystickX > 0) {
+                servos[0].setPosition((short) 32767);
+            }
+            if (joystickX < 0) {
+                servos[0].setPosition((short) -32767);
+            }
+            int velocityX = (int) (Math.abs((65535.0 / (100 * 100)) * (joystickX * joystickX)) + 0.5);
+            if (joystickY > 0) {
+                servos[1].setPosition((short) 32767);
+            }
+            if (joystickY < 0) {
+                servos[1].setPosition((short) -32767);
+            }
+            int velocityY = (int) (Math.abs((65535.0 / (100 * 100)) * (joystickY * joystickY)) + 0.5);
+
+            if (velocityX > 2) {
+                servos[0].setVelocity(velocityX);
+                servos[0].setEnabled(true);
+
+            } else {
+                servos[0].setVelocity(0);
+                servos[0].setEnabled(false);
+            }
+            if (velocityY > 2) {
+                servos[1].setVelocity(velocityY);
+                servos[1].setEnabled(true);
+
+            } else {
+                servos[1].setVelocity(0);
+                servos[1].setEnabled(false);
+
+            }
+            publishIntent(servoServiceContract.INTENT, servoIntent);
+        });
         joystickIntent.calibrate=null;
         joystickIntent.positionCallbackPeriod=10L;
         publishIntent(joystickServiceContract.INTENT, joystickIntent);

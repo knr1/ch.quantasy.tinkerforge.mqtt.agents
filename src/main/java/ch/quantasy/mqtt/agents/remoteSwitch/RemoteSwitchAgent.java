@@ -46,10 +46,10 @@ import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContra
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.message.intent.remoteSwitch.DimSocketBParameters;
-import ch.quantasy.gateway.message.intent.remoteSwitch.RemoteSwitchIntent;
-import ch.quantasy.gateway.message.intent.remoteSwitch.SwitchSocketBParameters;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.remoteSwitch.DimSocketBParameters;
+import ch.quantasy.gateway.message.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketBParameters;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;

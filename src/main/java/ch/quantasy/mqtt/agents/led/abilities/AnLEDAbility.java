@@ -43,13 +43,14 @@ package ch.quantasy.mqtt.agents.led.abilities;
 
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.mqtt.gateway.client.GCEvent;
-import ch.quantasy.gateway.message.intent.ledStrip.LEDFrame;
-import ch.quantasy.gateway.message.intent.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.intent.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.message.ledStrip.LEDFrame;
+import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.message.ledStrip.RenderedEvent;
 import java.util.ArrayList;
 import java.util.List;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
+import java.util.SortedSet;
 
 /**
  *
@@ -69,7 +70,7 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
         gatewayClient.subscribe(ledServiceContract.EVENT_LEDs_RENDERED, this);
         LedStripIntent intent = new LedStripIntent();
         intent.config = config;
-        gatewayClient.publishIntent(ledServiceContract.INTENT, intent);
+        gatewayClient.getPublishingCollector().readyToPublish(ledServiceContract.INTENT, intent);
 
     }
 
@@ -97,25 +98,26 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
     public void setLEDFrame(LEDFrame ledFrame) {
         LedStripIntent intent = new LedStripIntent();
         intent.LEDFrame = ledFrame;
-        gatewayClient.publishIntent(ledServiceContract.INTENT, intent);
+        gatewayClient.getPublishingCollector().readyToPublish(ledServiceContract.INTENT, intent);
     }
 
     public void setLEDFrames(List<LEDFrame> ledFrames) {
         List<LEDFrame> frames = new ArrayList<>(ledFrames);
         LedStripIntent intent = new LedStripIntent();
         intent.LEDFrames = frames.toArray(new LEDFrame[frames.size()]);
-        gatewayClient.publishIntent(ledServiceContract.INTENT, intent);
+        gatewayClient.getPublishingCollector().readyToPublish(ledServiceContract.INTENT, intent);
     }
 
     @Override
     public void messageReceived(String topic, byte[] payload) throws Exception {
-//        synchronized (this) {
-//            GCEvent<Integer>[] framesRendered = (GCEvent<Integer>[]) gatewayClient.toMessageSet(payload, Integer.class);
-//            if (framesRendered.length > 0) {
-//                counter = framesRendered[0].getValue();
-//                this.notifyAll();
-//            }
-//        }
+        synchronized (this) {
+            SortedSet<RenderedEvent>framesRendered = gatewayClient.toMessageSet(payload, RenderedEvent.class);
+            
+            if (!framesRendered.isEmpty()) {
+                counter = framesRendered.last().getValue();
+                this.notifyAll();
+            }
+        }
     }
 
 }

@@ -42,21 +42,23 @@
  */
 package ch.quantasy.mqtt.agents.TimedSwitch;
 
-import ch.quantasy.gateway.message.intent.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.message.EpochDeltaEvent;
+import ch.quantasy.gateway.message.TimerIntent;
+import ch.quantasy.gateway.message.remoteSwitch.RemoteSwitchIntent;
 import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.gateway.client.GCEvent;
 import ch.quantasy.timer.DeviceTickerConfiguration;
-import ch.quantasy.gateway.message.intent.remoteSwitch.SwitchSocketCParameters;
+import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketCParameters;
 import java.net.URI;
-import java.time.LocalDateTime;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.gateway.message.intent.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.SortedSet;
 
 /**
  *
@@ -82,48 +84,48 @@ public class TimedSwitch extends GenericTinkerforgeAgent {
         TimerServiceContract timerContract = super.getTimerServiceContracts()[0];
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("untergeschoss"));
-//        subscribe(timerContract.EVENT_TICK + "/poolPump", (topic, payload) -> {
-//            GCEvent<Long>[] epochTimeInMillis = toEventArray(payload, Long.class);
-//            LocalDateTime theDate
-//                    = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTimeInMillis[0].getTimestamp()), ZoneId.systemDefault());
-//            int hour = theDate.getHour();
-//            System.out.printf("Time: %s -> Switch: ", theDate);
-//            if (state == SwitchSocketCParameters.SwitchTo.switchOn || (hour > 21 || hour < 7)) {
-//                switchMotor(SwitchSocketCParameters.SwitchTo.switchOff);
-//                state = SwitchSocketCParameters.SwitchTo.switchOff;
-//                System.out.println("off");
-//            } else {
-//                switchMotor(SwitchSocketCParameters.SwitchTo.switchOn);
-//                state = SwitchSocketCParameters.SwitchTo.switchOn;
-//                System.out.println("on");
-//            }
-//        });
+        subscribe(timerContract.EVENT_TICK + "/poolPump", (topic, payload) -> {
+            SortedSet<EpochDeltaEvent> epochTimeInMillis = toMessageSet(payload, EpochDeltaEvent.class);
+            LocalDateTime theDate
+                    = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTimeInMillis.first().getTimeStamp()), ZoneId.systemDefault());
+            int hour = theDate.getHour();
+            System.out.printf("Time: %s -> Switch: ", theDate);
+            if (state == SwitchSocketCParameters.SwitchTo.switchOn || (hour > 21 || hour < 7)) {
+                switchMotor(SwitchSocketCParameters.SwitchTo.switchOff);
+                state = SwitchSocketCParameters.SwitchTo.switchOff;
+                System.out.println("off");
+            } else {
+                switchMotor(SwitchSocketCParameters.SwitchTo.switchOn);
+                state = SwitchSocketCParameters.SwitchTo.switchOn;
+                System.out.println("on");
+            }
+        });
 
         subscribe(timerContract.EVENT_TICK + "/garden", (topic, payload) -> {
             switchAlwaysOn();
         });
-        publishIntent(timerContract.INTENT_CONFIGURATION, new DeviceTickerConfiguration("poolPump", null, 0, 1000 * 60 * 60, null));
-        publishIntent(timerContract.INTENT_CONFIGURATION, new DeviceTickerConfiguration("garden", null, 0, 1000 * 60 * 30, null));
+        publishIntent(timerContract.INTENT, new TimerIntent("poolPump", null, 0, 1000 * 60 * 60, null, null));
+        publishIntent(timerContract.INTENT, new TimerIntent("garden", null, 0, 1000 * 60 * 30, null, null));
 
     }
 
     private SwitchSocketCParameters.SwitchTo state;
 
     private void switchMotor(SwitchSocketCParameters.SwitchTo state) {
-        RemoteSwitchIntent intent=new RemoteSwitchIntent();
+        RemoteSwitchIntent intent = new RemoteSwitchIntent();
         if (this.state == state) {
             return;
         }
         this.state = state;
         intent.switchSocketCParameters = new SwitchSocketCParameters('L', (short) 2, state);
-        
+
         publishIntent(remoteSwitchServiceContract.INTENT, intent);
         System.out.println("Switching: " + state);
     }
 
     private void switchAlwaysOn() {
-        RemoteSwitchIntent intent=new RemoteSwitchIntent();
-        intent.switchSocketCParameters= new SwitchSocketCParameters('L', (short) 1, SwitchSocketCParameters.SwitchTo.switchOn);
+        RemoteSwitchIntent intent = new RemoteSwitchIntent();
+        intent.switchSocketCParameters = new SwitchSocketCParameters('L', (short) 1, SwitchSocketCParameters.SwitchTo.switchOn);
         publishIntent(remoteSwitchServiceContract.INTENT, intent);
     }
 

@@ -40,33 +40,43 @@
  *  *
  *  *
  */
-package ch.quantasy.mqtt.agents.dualRelay;
+package ch.quantasy.mqtt.agents.motorizedLinearPoti;
 
-import ch.quantasy.gateway.message.dualRelay.DeviceSelectedRelayState;
-import ch.quantasy.gateway.message.dualRelay.DualRelayIntent;
+import ch.quantasy.mqtt.agents.RGBLEDButton.*;
+import ch.quantasy.gateway.message.RGBLEDButton.ButtonState;
+import ch.quantasy.gateway.message.RGBLEDButton.ButtonEvent;
+import ch.quantasy.gateway.message.RGBLEDButton.RGBColor;
+import ch.quantasy.gateway.message.RGBLEDButton.RGBLEDButtonIntent;
+import ch.quantasy.gateway.message.motorizedLinearPoti.DeviceMotorPosition;
+import ch.quantasy.gateway.message.motorizedLinearPoti.DriveMode;
+import ch.quantasy.gateway.message.motorizedLinearPoti.MotorizedLinearPotiIntent;
+import ch.quantasy.gateway.message.motorizedLinearPoti.PositionEvent;
+import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.service.device.RGBLEDButton.RGBLEDButtonServiceContract;
+import ch.quantasy.gateway.service.device.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.mqtt.gateway.client.message.MessageCollector;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
-import java.util.HashSet;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackIntent;
-import ch.quantasy.gateway.service.device.dualRelay.DualRelayServiceContract;
 
 /**
  *
  * @author reto
  */
-public class DualRelayAgent extends GenericTinkerforgeAgent {
+public class MotorizedLinearPotiAgent extends GenericTinkerforgeAgent {
 
     private StackManagerServiceContract managerServiceContract;
+    private Random random;
 
-    public DualRelayAgent(URI mqttURI) throws MqttException, InterruptedException {
-        super(mqttURI, "398h3jöi", new GenericTinkerforgeAgentContract("DualRelay", "dualR"));
-
+    public MotorizedLinearPotiAgent(URI mqttURI) throws MqttException, InterruptedException {
+        super(mqttURI, "rep9h4hp93q4", new GenericTinkerforgeAgentContract("MotorizedLinearPoti", "slider"));
+        random = new Random();
         connect();
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
@@ -74,18 +84,33 @@ public class DualRelayAgent extends GenericTinkerforgeAgent {
         }
 
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        TinkerforgeStackIntent intent = new TinkerforgeStackIntent(true, new TinkerforgeStackAddress("localhost"));
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
-        DualRelayServiceContract contract = new DualRelayServiceContract("bVu", TinkerforgeDeviceClass.DualRelay.toString());
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
+        List<MotorizedLinearPotiServiceContract> potis = new ArrayList();
+        potis.add(new MotorizedLinearPotiServiceContract("D4w"));
+        potis.add(new MotorizedLinearPotiServiceContract("D4J"));
 
-        DualRelayIntent dualRelayIntent = new DualRelayIntent();
-        dualRelayIntent.selectedRelayStates.add(new DeviceSelectedRelayState((short) 1, true));
-        publishIntent(contract.INTENT, dualRelayIntent);
+        MessageCollector<PositionEvent> mc = new MessageCollector();
+        {
+            MotorizedLinearPotiIntent buttonIntent = new MotorizedLinearPotiIntent();
+            buttonIntent.motorPosition = new DeviceMotorPosition(random.nextInt(100), DriveMode.getDriveModeFor(random.nextInt(1)+1), true);
+            for (MotorizedLinearPotiServiceContract poti : potis) {
+                publishIntent(poti.INTENT, buttonIntent);
+            }
+        }
 
+        for (MotorizedLinearPotiServiceContract poti : potis) {
+            subscribe(poti.EVENT_POSITION_REACHED, (topic, payload) -> {
+                mc.add(topic, (Set<PositionEvent>) toMessageSet(payload, PositionEvent.class));
+                MotorizedLinearPotiIntent buttonIntent = new MotorizedLinearPotiIntent();
+                buttonIntent.motorPosition = new DeviceMotorPosition(random.nextInt(100), DriveMode.getDriveModeFor(random.nextInt(1)+1), true);
+                Thread.sleep(random.nextInt(1000));
+                publishIntent(poti.INTENT, buttonIntent);
+            });
+        }
     }
 
     public void finish() {
-        super.removeTinkerforgeStackFrom(managerServiceContract, new TinkerforgeStackAddress("localhost"));
+        super.removeTinkerforgeStackFrom(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
         return;
     }
 
@@ -97,7 +122,7 @@ public class DualRelayAgent extends GenericTinkerforgeAgent {
             System.out.printf("Per default, 'tcp://127.0.0.1:1883' is chosen.\nYou can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883\n");
         }
         System.out.printf("\n%s will be used as broker address.\n", mqttURI);
-        DualRelayAgent agent = new DualRelayAgent(mqttURI);
+        MotorizedLinearPotiAgent agent = new MotorizedLinearPotiAgent(mqttURI);
         System.in.read();
         agent.finish();
     }
