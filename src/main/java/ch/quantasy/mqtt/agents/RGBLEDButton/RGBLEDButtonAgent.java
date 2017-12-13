@@ -84,7 +84,7 @@ public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
             publishIntent(button.INTENT, buttonIntent);
         }
         subscribe(button.EVENT_BUTTON, (topic, payload) -> {
-            mc.add(topic, (Set<ButtonEvent>) toMessageSet(payload, button.getMessageClassFor(button.EVENT_BUTTON)));
+            mc.add(topic,toMessageSet(payload, ButtonEvent.class));
             ButtonEvent event = mc.retrieveLastMessage(topic);
             RGBLEDButtonIntent buttonIntent = new RGBLEDButtonIntent();
             if (event.getState() == ButtonState.PRESSED) {

@@ -56,6 +56,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,7 +94,7 @@ public class XMasLEDLightAgent01 extends GenericTinkerforgeAgent {
         abilities.add(new SparklingFire(this, ledServiceContract1, config));
 
         subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
-            SortedSet<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);
+            Set<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);
             Logger.getLogger(XMasLEDLightAgent01.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag.toArray(new Object[0])));
         });
         try {

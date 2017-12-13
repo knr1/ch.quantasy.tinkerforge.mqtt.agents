@@ -61,6 +61,7 @@ import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  *
@@ -170,7 +171,7 @@ public class AmbientLEDLightAgent extends GenericTinkerforgeAgent {
 
          @Override
         public void messageReceived(String topic, byte[] mm) throws Exception {
-            SortedSet<CountEvent> countEvents= toMessageSet(mm, CountEvent.class);
+            SortedSet<CountEvent> countEvents= new TreeSet(toMessageSet(mm, CountEvent.class));
             if (latestCount == null) {
                 latestCount = countEvents.last().getValue();
             }

@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  *
@@ -111,7 +112,7 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
     @Override
     public void messageReceived(String topic, byte[] payload) throws Exception {
         synchronized (this) {
-            SortedSet<RenderedEvent>framesRendered = gatewayClient.toMessageSet(payload, RenderedEvent.class);
+            SortedSet<RenderedEvent>framesRendered = new TreeSet(gatewayClient.toMessageSet(payload, RenderedEvent.class));
             
             if (!framesRendered.isEmpty()) {
                 counter = framesRendered.last().getValue();

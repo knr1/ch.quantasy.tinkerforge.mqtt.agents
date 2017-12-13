@@ -53,13 +53,13 @@ import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 import ch.quantasy.gateway.message.ambientLight.DeviceIlluminanceCallbackThreshold;
 import ch.quantasy.gateway.message.ambientLight.IlluminanceEvent;
 import ch.quantasy.gateway.message.dc.DCIntent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -124,7 +124,7 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
             ambientIntent.illuminanceThreshold = new DeviceIlluminanceCallbackThreshold('o', 20, 100);
             publishIntent(ambientLightServiceContract.INTENT, ambientIntent);
             subscribe(ambientLightServiceContract.EVENT_ILLUMINANCE_REACHED, (String topic, byte[] payload) -> {
-                SortedSet<IlluminanceEvent> illuminances = toMessageSet(payload, IlluminanceEvent.class);
+                SortedSet<IlluminanceEvent> illuminances = new TreeSet(toMessageSet(payload, IlluminanceEvent.class));
                 IlluminanceEvent illuminance = illuminances.last();
                 if (illuminance.getValue() < 100) {
                     delayedOff.setPaused(false);

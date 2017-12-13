@@ -42,17 +42,11 @@
  */
 package ch.quantasy.mqtt.agents.motorizedLinearPoti;
 
-import ch.quantasy.mqtt.agents.RGBLEDButton.*;
-import ch.quantasy.gateway.message.RGBLEDButton.ButtonState;
-import ch.quantasy.gateway.message.RGBLEDButton.ButtonEvent;
-import ch.quantasy.gateway.message.RGBLEDButton.RGBColor;
-import ch.quantasy.gateway.message.RGBLEDButton.RGBLEDButtonIntent;
 import ch.quantasy.gateway.message.motorizedLinearPoti.DeviceMotorPosition;
 import ch.quantasy.gateway.message.motorizedLinearPoti.DriveMode;
 import ch.quantasy.gateway.message.motorizedLinearPoti.MotorizedLinearPotiIntent;
 import ch.quantasy.gateway.message.motorizedLinearPoti.PositionEvent;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.service.device.RGBLEDButton.RGBLEDButtonServiceContract;
 import ch.quantasy.gateway.service.device.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
@@ -92,7 +86,7 @@ public class MotorizedLinearPotiAgent extends GenericTinkerforgeAgent {
         MessageCollector<PositionEvent> mc = new MessageCollector();
         {
             MotorizedLinearPotiIntent buttonIntent = new MotorizedLinearPotiIntent();
-            buttonIntent.motorPosition = new DeviceMotorPosition(random.nextInt(100), DriveMode.getDriveModeFor(random.nextInt(1)+1), true);
+            buttonIntent.motorPosition = new DeviceMotorPosition(50, DriveMode.FAST, true);
             for (MotorizedLinearPotiServiceContract poti : potis) {
                 publishIntent(poti.INTENT, buttonIntent);
             }
@@ -100,9 +94,9 @@ public class MotorizedLinearPotiAgent extends GenericTinkerforgeAgent {
 
         for (MotorizedLinearPotiServiceContract poti : potis) {
             subscribe(poti.EVENT_POSITION_REACHED, (topic, payload) -> {
-                mc.add(topic, (Set<PositionEvent>) toMessageSet(payload, PositionEvent.class));
+                mc.add(topic, toMessageSet(payload, PositionEvent.class));
                 MotorizedLinearPotiIntent buttonIntent = new MotorizedLinearPotiIntent();
-                buttonIntent.motorPosition = new DeviceMotorPosition(random.nextInt(100), DriveMode.getDriveModeFor(random.nextInt(1)+1), true);
+                buttonIntent.motorPosition = new DeviceMotorPosition(random.nextInt(100), DriveMode.getDriveModeFor(random.nextInt(2)), true);
                 Thread.sleep(random.nextInt(1000));
                 publishIntent(poti.INTENT, buttonIntent);
             });

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 /**
@@ -84,7 +85,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract>
                 System.out.println(Arrays.toString(stackAddressParts));
                 if (payload != null) {
                     MessageCollector<ConnectStatus> collector = new MessageCollector<>();
-                    collector.add(topic, (Set<ConnectStatus>) toMessageSet(payload, ConnectStatus.class));
+                    collector.add(topic,toMessageSet(payload, ConnectStatus.class));
                     ConnectStatus addressStatus = collector.retrieveFirstMessage(topic);
                     if (addressStatus.value) {
                         addresses.add(new TinkerforgeStackAddress(stackAddressParts[0], Integer.parseInt(stackAddressParts[1])));
@@ -173,7 +174,7 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract>
         subscribe(managerServiceContract.STATUS_STACK_ADDRESS + "/" + stackName, (topic, payload) -> {
             Boolean isConnected = false;
             MessageCollector<ConnectStatus> collector = new MessageCollector();
-            collector.add(topic, (Set<ConnectStatus>) toMessageSet(payload, ConnectStatus.class));
+            collector.add(topic, toMessageSet(payload, ConnectStatus.class));
             isConnected = collector.retrieveFirstMessage(topic).value;
             synchronized (stacks) {
                 stacks.put(address, isConnected);

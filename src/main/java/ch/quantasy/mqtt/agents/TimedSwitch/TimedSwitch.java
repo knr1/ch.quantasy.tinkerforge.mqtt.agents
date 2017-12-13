@@ -50,7 +50,6 @@ import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.timer.DeviceTickerConfiguration;
 import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketCParameters;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -59,6 +58,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  *
@@ -85,7 +85,7 @@ public class TimedSwitch extends GenericTinkerforgeAgent {
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("untergeschoss"));
         subscribe(timerContract.EVENT_TICK + "/poolPump", (topic, payload) -> {
-            SortedSet<EpochDeltaEvent> epochTimeInMillis = toMessageSet(payload, EpochDeltaEvent.class);
+            SortedSet<EpochDeltaEvent> epochTimeInMillis = new TreeSet(toMessageSet(payload, EpochDeltaEvent.class));
             LocalDateTime theDate
                     = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTimeInMillis.first().getTimeStamp()), ZoneId.systemDefault());
             int hour = theDate.getHour();

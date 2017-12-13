@@ -61,6 +61,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  *
@@ -113,7 +114,7 @@ public class ServoJoystickAgent extends GenericTinkerforgeAgent {
         publishIntent(joystickServiceContract.INTENT, joystickIntent);
 
         subscribe(joystickServiceContract.EVENT_POSITION, (topic, payload) -> {
-            SortedSet<PositionEvent> position = toMessageSet(payload, PositionEvent.class);
+            SortedSet<PositionEvent> position = new TreeSet(toMessageSet(payload, PositionEvent.class));
             int joystickX = position.last().getX();
             int joystickY = position.last().getY();
 
