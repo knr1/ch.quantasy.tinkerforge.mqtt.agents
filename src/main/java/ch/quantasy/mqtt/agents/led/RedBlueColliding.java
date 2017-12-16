@@ -76,8 +76,8 @@ public class RedBlueColliding extends GenericTinkerforgeAgent {
         super(mqttURI, "433407hfra", new GenericTinkerforgeAgentContract("AmbientLEDLight", "lulu"));
         connect();
 
-        frameDurationInMillis = 10;
-        amountOfLEDs = 50;
+        frameDurationInMillis = 30;
+        amountOfLEDs = 16;
         abilities = new ArrayList<>();
 
         //connectRemoteServices(new TinkerforgeStackAddress("lights01"));
@@ -90,9 +90,9 @@ public class RedBlueColliding extends GenericTinkerforgeAgent {
         connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("localhost"));
 
         // LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2811, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BRG);
-        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2801, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.RGB);
+        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.RGBW);
 
-        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("wSj", TinkerforgeDeviceClass.LEDStrip.toString());
+        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("iHn", TinkerforgeDeviceClass.LEDStrip.toString());
         // LEDStripServiceContract ledServiceContract2 = new LEDStripServiceContract("p5z", TinkerforgeDeviceClass.LEDStrip.toString());
 
         abilities.add(new ColidingDots(this, ledServiceContract1, config));

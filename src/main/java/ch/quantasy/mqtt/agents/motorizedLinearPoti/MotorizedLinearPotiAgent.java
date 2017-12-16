@@ -78,15 +78,21 @@ public class MotorizedLinearPotiAgent extends GenericTinkerforgeAgent {
         }
 
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
         List<MotorizedLinearPotiServiceContract> potis = new ArrayList();
-        potis.add(new MotorizedLinearPotiServiceContract("D4w"));
-        potis.add(new MotorizedLinearPotiServiceContract("D4J"));
+        potis.add(new MotorizedLinearPotiServiceContract("D4C"));
+        potis.add(new MotorizedLinearPotiServiceContract("D4D"));
 
         MessageCollector<PositionEvent> mc = new MessageCollector();
         {
             MotorizedLinearPotiIntent buttonIntent = new MotorizedLinearPotiIntent();
+//            buttonIntent.calibration=true;
+//            for (MotorizedLinearPotiServiceContract poti : potis) {
+//                publishIntent(poti.INTENT, buttonIntent);
+//            }
+            Thread.sleep(10000);
             buttonIntent.motorPosition = new DeviceMotorPosition(50, DriveMode.FAST, true);
+            buttonIntent.calibration=false;
             for (MotorizedLinearPotiServiceContract poti : potis) {
                 publishIntent(poti.INTENT, buttonIntent);
             }

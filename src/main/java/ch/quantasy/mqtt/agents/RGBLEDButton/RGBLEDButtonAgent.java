@@ -74,8 +74,8 @@ public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
         }
 
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
-        RGBLEDButtonServiceContract button = new RGBLEDButtonServiceContract("D3Y");
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
+        RGBLEDButtonServiceContract button = new RGBLEDButtonServiceContract("D46");
 
         MessageCollector<ButtonEvent> mc = new MessageCollector();
         {
