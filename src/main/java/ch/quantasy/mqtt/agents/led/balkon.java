@@ -54,6 +54,8 @@ import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
 import ch.quantasy.gateway.message.ledStrip.LagingEvent;
 import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.mqtt.agents.led.abilities.ColidingDots;
+import ch.quantasy.mqtt.agents.led.abilities.DarkSparklingFire;
 import ch.quantasy.mqtt.agents.led.abilities.SparklingFire;
 import java.net.URI;
 import java.util.ArrayList;
@@ -69,17 +71,17 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  *
  * @author reto
  */
-public class LEDs20W extends GenericTinkerforgeAgent {
+public class balkon extends GenericTinkerforgeAgent {
 
     private final List<AnLEDAbility> abilities;
     private final int frameDurationInMillis;
     private final int amountOfLEDs;
 
-    public LEDs20W(URI mqttURI) throws MqttException {
-        super(mqttURI, "xmastree4985", new GenericTinkerforgeAgentContract("XMasTreeLED", "XMasTreeLed01"));
+    public balkon(URI mqttURI) throws MqttException {
+        super(mqttURI, "balkonagh", new GenericTinkerforgeAgentContract("XMasTreeLED", "balkon01"));
         connect();
-        frameDurationInMillis = 100;
-        amountOfLEDs = 120;
+        frameDurationInMillis = 40;
+        amountOfLEDs = 200;
         abilities = new ArrayList<>();
 
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
@@ -88,18 +90,18 @@ public class LEDs20W extends GenericTinkerforgeAgent {
         }
 
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("balkon"));
         LedStripIntent ledIntent = new LedStripIntent();
-        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.GRBW);
+        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2801, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BGR);
         ledIntent.config = config;
-        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("wU1", TinkerforgeDeviceClass.LEDStrip.toString());
+        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("oZU", TinkerforgeDeviceClass.LEDStrip.toString());
         publishIntent(ledServiceContract1.INTENT, ledIntent);
 
-        abilities.add(new SparklingFire(this, ledServiceContract1, config));
+        abilities.add(new DarkSparklingFire(this, ledServiceContract1, config));
 
         subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
             Set<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);
-            Logger.getLogger(LEDs20W.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag.toArray(new Object[0])));
+            Logger.getLogger(balkon.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag.toArray(new Object[0])));
         });
         for (AnLEDAbility ability : abilities) {
             new Thread(ability).start();
@@ -114,7 +116,7 @@ public class LEDs20W extends GenericTinkerforgeAgent {
             System.out.printf("Per default, 'tcp://127.0.0.1:1883' is chosen.\nYou can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883\n");
         }
         System.out.printf("\n%s will be used as broker address.\n", mqttURI);
-        LEDs20W agent = new LEDs20W(mqttURI);
+        balkon agent = new balkon(mqttURI);
         System.in.read();
     }
 }
