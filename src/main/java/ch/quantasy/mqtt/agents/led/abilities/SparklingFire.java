@@ -80,17 +80,11 @@ public class SparklingFire extends AnLEDAbility {
         int RED = 255;
         int GREEN = 90;
         int BLUE = 10;
-        for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
-            double damper = random.nextDouble();
-            leds.setColor((short) 0, (short) position, (short) Math.max(RED / 2, Math.min(RED, RED * damper)));
-            leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 2, Math.min(GREEN, GREEN * damper)));
-            leds.setColor((short) 2, (short) position, (short) Math.max(BLUE / 2, Math.min(BLUE, BLUE * damper)));
-
-        }
+        
         try {
             while (true) {
                 while (frames.size() < 150) {
-                    for (int position = 1; position < leds.getNumberOfLEDs(); position++) {
+                    for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
                         double damper = random.nextDouble();
                         leds.setColor((short) 0, (short) position, (short) Math.max(RED / 2, Math.min(RED, RED * damper)));
                         leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 2, Math.min(GREEN, GREEN * damper)));

@@ -17,10 +17,5 @@ public class GenericTinkerforgeAgentContract extends AyamlServiceContract{
     public GenericTinkerforgeAgentContract(String rootContext, String baseClass) {
         super("Agent",rootContext, baseClass);
     }
-
-    @Override
-    protected void describe(Map<String, String> descriptions) {
-        //No descriptions
-    }
     
 }

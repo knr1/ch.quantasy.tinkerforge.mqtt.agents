@@ -49,10 +49,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * This LEDAbility prepares 150 frames where each frame has another led lit.
+ * It keeps checking that the LEDStrip-service does not underrun hence as soon as the LEDStrip-service publishes a stock-value lower than
+ * 100, the next pile of frames is sent.
  * @author reto
  */
-class MovingDot extends AnLEDAbility {
+public class MovingDot extends AnLEDAbility {
         private final List<LEDFrame> frames;
 
         public MovingDot(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
@@ -86,7 +88,7 @@ class MovingDot extends AnLEDAbility {
                     Thread.sleep(super.getConfig().getFrameDurationInMilliseconds() * 50);
 
                     synchronized (this) {
-                        while (getCounter() > 100) {
+                        while (super.getCounter() > 100) {
                             this.wait(super.getConfig().getFrameDurationInMilliseconds() * 1000);
                         }
                     }

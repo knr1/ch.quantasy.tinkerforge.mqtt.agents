@@ -80,21 +80,15 @@ public class DarkSparklingFire extends AnLEDAbility {
         int RED = 128;
         int GREEN = 45;
         int BLUE = 5;
-        for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
-            double damper = random.nextDouble();
-            leds.setColor((short) 2, (short) position, (short) Math.max(RED / 4.0, Math.min(RED, RED * damper)));
-            leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 4.0, Math.min(GREEN, GREEN * damper)));
-            leds.setColor((short) 0, (short) position, (short) Math.max(BLUE / 4.0, Math.min(BLUE, BLUE * damper)));
-
-        }
+        
         try {
             while (true) {
                 while (frames.size() < 150) {
-                    for (int position = 1; position < leds.getNumberOfLEDs(); position++) {
+                    for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
                         double damper = random.nextDouble();
-                        leds.setColor((short) 2, (short) position, (short) Math.max(RED / 2, Math.min(RED, RED * damper)));
-                        leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 2, Math.min(GREEN, GREEN * damper)));
-                        leds.setColor((short) 0, (short) position, (short) Math.max(BLUE / 2, Math.min(BLUE, BLUE * damper)));
+                        leds.setColor((short) 2, (short) position, (short) Math.max(RED / 5, Math.min(RED, RED * damper)));
+                        leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 5, Math.min(GREEN, GREEN * damper)));
+                        leds.setColor((short) 0, (short) position, (short) Math.max(BLUE / 5, Math.min(BLUE, BLUE * damper)));
                     }
                     LEDFrame sparkly = new LEDFrame(leds);
                     for (int position = 0; position < leds.getNumberOfLEDs(); position++) {

@@ -47,12 +47,17 @@ import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.gateway.message.remoteSwitch.DimSocketBParameters;
+import ch.quantasy.gateway.message.remoteSwitch.DimSocketBParametersStatus;
 import ch.quantasy.gateway.message.remoteSwitch.RemoteSwitchIntent;
 import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketBParameters;
+import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketBParametersStatus;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  *
@@ -84,8 +89,8 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
             @Override
             public void messageReceived(String topic, byte[] mm) throws Exception {
 
-                Switcher[] switchers = getMapper().readValue(mm, Switcher[].class);
-                Switcher switcher = switchers[0];
+                    SortedSet<SwitcherEvent> switchers=new TreeSet(toMessageSet(mm, SwitcherEvent.class));
+                SwitcherEvent switcher = switchers.last();
                 RemoteSwitchServiceContract contract = null;
                 switch (switcher.getFloor()) {
                     case "UG":
@@ -103,15 +108,14 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
                     return;
                 }
                 if (switcher.getType().equals("switchSocketB")) {
-                    SwitchSocketBParameters[] bs = getMapper().readValue(mm, SwitchSocketBParameters[].class);
+                  
                     RemoteSwitchIntent remoteSwitchIntent=new RemoteSwitchIntent();
-                    remoteSwitchIntent.switchSocketBParameters=bs[0];
+                    remoteSwitchIntent.switchSocketBParameters=new SwitchSocketBParameters(switcher.getAddress(),switcher.getUnit(), switcher.getSwitchingValue());
                     publishIntent(contract.INTENT, remoteSwitchIntent);
                 }
                 if (switcher.getType().equals("dimSocketB")) {
-                    DimSocketBParameters[] bs = getMapper().readValue(mm, DimSocketBParameters[].class);
-                     RemoteSwitchIntent remoteSwitchIntent=new RemoteSwitchIntent();
-                    remoteSwitchIntent.dimSocketBParameters=bs[0];
+                    RemoteSwitchIntent remoteSwitchIntent=new RemoteSwitchIntent();
+                    remoteSwitchIntent.dimSocketBParameters=new DimSocketBParameters(switcher.getAddress(),switcher.getUnit(),switcher.getDimValue());
                     publishIntent(contract.INTENT, remoteSwitchIntent);
                 }
             }
@@ -119,20 +123,7 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
         );
     }
 
-    static class Switcher {
-
-        private String floor;
-        private String type;
-
-        public String getFloor() {
-            return floor;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-    }
+    
 
     public static void main(String[] args) throws Throwable {
         URI mqttURI = URI.create("tcp://127.0.0.1:1883");

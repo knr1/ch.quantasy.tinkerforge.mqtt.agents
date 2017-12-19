@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 /**
@@ -35,8 +34,8 @@ public class GenericTinkerforgeAgent extends GatewayClient<AyamlServiceContract>
     private final Map<StackManagerServiceContract, Set<TinkerforgeStackAddress>> managedStacks;
     private final Set<TimerServiceContract> timerServiceContracts;
 
-    private MessageCollector intentCollector;
-    private PublishingMessageCollector intentPublisher;
+    private final MessageCollector intentCollector;
+    private final PublishingMessageCollector intentPublisher;
 
     public GenericTinkerforgeAgent(URI mqttURI, String clientID, AyamlServiceContract contract) throws MqttException {
         super(mqttURI, clientID, contract);

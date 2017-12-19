@@ -43,9 +43,9 @@ public class Fire extends AnLEDAbility {
                 while (frames.size() < 150) {
                     for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
                         double damper = random.nextDouble() * 0.99;
-                        leds.setColor((short) 0, (short) position, (short) Math.max(RED / 3.0, RED * damper));
-                        leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 3.0,  GREEN * damper));
-                        leds.setColor((short) 2, (short) position, (short) Math.max(BLUE / 3.0, BLUE * damper));
+                        leds.setColor((short) 0, (short) position, (short) Math.max(RED / 5.0, RED * damper));
+                        leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 5.0,  GREEN * damper));
+                        leds.setColor((short) 2, (short) position, (short) Math.max(BLUE / 5.0, BLUE * damper));
                     }
                     frames.add(new LEDFrame(leds));
                 }
