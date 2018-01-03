@@ -54,6 +54,8 @@ import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.mqtt.gateway.client.message.MessageCollector;
 import java.net.URI;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 /**
@@ -63,6 +65,9 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
 
     private StackManagerServiceContract managerServiceContract;
+    private Thread t;
+    private RGBLEDButtonServiceContract button;
+    private Blinky blinky;
 
     public RGBLEDButtonAgent(URI mqttURI) throws MqttException, InterruptedException {
         super(mqttURI, "rtbtzihl", new GenericTinkerforgeAgentContract("RGBLEDButton", "flipper"));
@@ -75,8 +80,10 @@ public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
 
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
-        RGBLEDButtonServiceContract button = new RGBLEDButtonServiceContract("D46");
-
+        button = new RGBLEDButtonServiceContract("D46");
+        blinky = new Blinky();
+        t = new Thread(blinky);
+        t.start();
         MessageCollector<ButtonEvent> mc = new MessageCollector();
         {
             RGBLEDButtonIntent buttonIntent = new RGBLEDButtonIntent();
@@ -84,13 +91,15 @@ public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
             publishIntent(button.INTENT, buttonIntent);
         }
         subscribe(button.EVENT_BUTTON, (topic, payload) -> {
-            mc.add(topic,toMessageSet(payload, ButtonEvent.class));
+            mc.add(topic, toMessageSet(payload, ButtonEvent.class));
             ButtonEvent event = mc.retrieveLastMessage(topic);
             RGBLEDButtonIntent buttonIntent = new RGBLEDButtonIntent();
             if (event.getState() == ButtonState.PRESSED) {
+                blinky.setBlinkStartRelativeToNow(300000);
                 buttonIntent.color = new RGBColor(100, 255, 0);
             }
             if (event.getState() == ButtonState.RELEASED) {
+                blinky.setBlinkStartRelativeToNow(3000);
                 buttonIntent.color = new RGBColor(255, 80, 0);
             }
             publishIntent(button.INTENT, buttonIntent);
@@ -98,7 +107,44 @@ public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
 
     }
 
+    class Blinky implements Runnable {
+
+        private long blinkStart;
+        private RGBLEDButtonIntent[] intents;
+
+        public void setBlinkStartRelativeToNow(int start) {
+            blinkStart = System.currentTimeMillis() + start;
+        }
+
+        @Override
+        public void run() {
+            intents = new RGBLEDButtonIntent[2];
+            intents[0] = new RGBLEDButtonIntent(new RGBColor(0, 100, 255));
+            intents[1] = new RGBLEDButtonIntent(new RGBColor(255, 0, 0));
+            int flipper = 0;
+            try {
+
+                while (true) {
+
+                    while (blinkStart > System.currentTimeMillis()) {
+                        Thread.sleep(Math.max(1,System.currentTimeMillis() - blinkStart));
+                    }
+                    flipper++;
+                    flipper %= intents.length;
+                    publishIntent(button.INTENT, intents[flipper]);
+                    Thread.sleep(500);
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(RGBLEDButtonAgent.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            publishIntent(button.INTENT, new RGBLEDButtonIntent(new RGBColor(0, 0, 0)));
+
+        }
+
+    }
+
     public void finish() {
+        t.interrupt();
         super.removeTinkerforgeStackFrom(managerServiceContract, new TinkerforgeStackAddress("TestBrick"));
         return;
     }

@@ -120,5 +120,9 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
             }
         }
     }
+    
+     public void blackOut(){
+        setLEDFrame(getNewLEDFrame());
+    }
 
 }

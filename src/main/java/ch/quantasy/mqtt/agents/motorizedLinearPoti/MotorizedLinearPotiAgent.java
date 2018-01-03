@@ -80,9 +80,11 @@ public class MotorizedLinearPotiAgent extends GenericTinkerforgeAgent {
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
         List<MotorizedLinearPotiServiceContract> potis = new ArrayList();
+        potis.add(new MotorizedLinearPotiServiceContract("D4w"));
         potis.add(new MotorizedLinearPotiServiceContract("D4C"));
-        potis.add(new MotorizedLinearPotiServiceContract("D4D"));
+        potis.add(new MotorizedLinearPotiServiceContract("D4J"));
 
+        
         MessageCollector<PositionEvent> mc = new MessageCollector();
         {
             MotorizedLinearPotiIntent buttonIntent = new MotorizedLinearPotiIntent();
@@ -91,7 +93,7 @@ public class MotorizedLinearPotiAgent extends GenericTinkerforgeAgent {
 //                publishIntent(poti.INTENT, buttonIntent);
 //            }
             Thread.sleep(10000);
-            buttonIntent.motorPosition = new DeviceMotorPosition(50, DriveMode.FAST, true);
+            buttonIntent.motorPosition = new DeviceMotorPosition(50, DriveMode.FAST, false);
             buttonIntent.calibration=false;
             for (MotorizedLinearPotiServiceContract poti : potis) {
                 publishIntent(poti.INTENT, buttonIntent);
@@ -102,7 +104,7 @@ public class MotorizedLinearPotiAgent extends GenericTinkerforgeAgent {
             subscribe(poti.EVENT_POSITION_REACHED, (topic, payload) -> {
                 mc.add(topic, toMessageSet(payload, PositionEvent.class));
                 MotorizedLinearPotiIntent buttonIntent = new MotorizedLinearPotiIntent();
-                buttonIntent.motorPosition = new DeviceMotorPosition(random.nextInt(100), DriveMode.getDriveModeFor(random.nextInt(2)), true);
+                buttonIntent.motorPosition = new DeviceMotorPosition(random.nextInt(100), DriveMode.getDriveModeFor(random.nextInt(2)), random.nextBoolean());
                 Thread.sleep(random.nextInt(1000));
                 publishIntent(poti.INTENT, buttonIntent);
             });

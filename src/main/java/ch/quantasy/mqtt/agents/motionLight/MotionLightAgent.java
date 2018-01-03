@@ -119,6 +119,7 @@ public class MotionLightAgent extends GenericTinkerforgeAgent {
     }
 
     public static void main(String[] args) throws Throwable {
+        //URI mqttURI = URI.create("tcp://smarthome01:1883");
         URI mqttURI = URI.create("tcp://localhost:1883");
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);

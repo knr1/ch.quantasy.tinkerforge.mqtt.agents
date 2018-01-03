@@ -167,6 +167,7 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
                     }
                     DCIntent dcIntent = new DCIntent();
                     dcIntent.velocity = (short) ((32767 / 100) * powerInPercent);
+                    System.out.println(dcIntent.isValid());
                     publishIntent(dcServiceContract.INTENT, dcIntent);
                     while (delayUntil > System.currentTimeMillis()) {
                         if (currentPowerInPercent != powerInPercent) {
@@ -189,6 +190,8 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
     }
 
     public static void main(String[] args) throws Throwable {
+        //URI mqttURI = URI.create("tcp://smarthome01:1883");
+
         URI mqttURI = URI.create("tcp://localhost:1883");
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);

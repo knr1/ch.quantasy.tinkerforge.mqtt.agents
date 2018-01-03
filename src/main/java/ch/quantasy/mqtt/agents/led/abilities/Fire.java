@@ -6,7 +6,6 @@
 package ch.quantasy.mqtt.agents.led.abilities;
 
 import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
-import ch.quantasy.mqtt.agents.led.LEDs20W;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import ch.quantasy.gateway.message.ledStrip.LEDFrame;
 import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;

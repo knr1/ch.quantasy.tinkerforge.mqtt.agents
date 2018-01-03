@@ -52,6 +52,8 @@ import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
 import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
 import ch.quantasy.gateway.message.ledStrip.LagingEvent;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.mqtt.agents.led.abilities.ColidingDots;
+import ch.quantasy.mqtt.agents.led.abilities.DarkSparklingFire;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,8 +77,8 @@ public class XMasLEDLightAgent01 extends GenericTinkerforgeAgent {
     public XMasLEDLightAgent01(URI mqttURI) throws MqttException {
         super(mqttURI, "xmas4985", new GenericTinkerforgeAgentContract("XMasLED", "XMasLed01"));
         connect();
-        frameDurationInMillis = 100;
-        amountOfLEDs = 200;
+        frameDurationInMillis = 60;
+        amountOfLEDs = 250;
         abilities = new ArrayList<>();
 
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
@@ -85,13 +87,13 @@ public class XMasLEDLightAgent01 extends GenericTinkerforgeAgent {
         }
 
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("lights02"));
+        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("TestBrick"));
 
         LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2801, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.RGB);
 
-        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("jGL", TinkerforgeDeviceClass.LEDStrip.toString());
+        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("p5z", TinkerforgeDeviceClass.LEDStrip.toString());
 
-        abilities.add(new SparklingFire(this, ledServiceContract1, config));
+        abilities.add(new DarkSparklingFire(this, ledServiceContract1, config));
 
         subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
             Set<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);

@@ -55,8 +55,11 @@ import ch.quantasy.gateway.message.ledStrip.LagingEvent;
 import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
 import ch.quantasy.mqtt.agents.led.abilities.ColidingDots;
+import ch.quantasy.mqtt.agents.led.abilities.DarkFire;
 import ch.quantasy.mqtt.agents.led.abilities.DarkSparklingFire;
+import ch.quantasy.mqtt.agents.led.abilities.RedBlueRipples;
 import ch.quantasy.mqtt.agents.led.abilities.SparklingFire;
+import ch.quantasy.mqtt.agents.led.abilities.WaveAdjustableBrightness;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +77,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 public class balkon extends GenericTinkerforgeAgent {
 
     private final List<AnLEDAbility> abilities;
+    private List<Thread> threads = new ArrayList<>();
+
     private final int frameDurationInMillis;
     private final int amountOfLEDs;
 
@@ -104,7 +109,16 @@ public class balkon extends GenericTinkerforgeAgent {
             Logger.getLogger(balkon.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag.toArray(new Object[0])));
         });
         for (AnLEDAbility ability : abilities) {
-            new Thread(ability).start();
+            Thread t = new Thread(ability);
+            t.start();
+            threads.add(t);
+        }
+
+    }
+
+    public void blackOut() {
+        for (Thread thread : threads) {
+            thread.interrupt();
         }
     }
 
@@ -118,5 +132,6 @@ public class balkon extends GenericTinkerforgeAgent {
         System.out.printf("\n%s will be used as broker address.\n", mqttURI);
         balkon agent = new balkon(mqttURI);
         System.in.read();
+        agent.blackOut();
     }
 }

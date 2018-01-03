@@ -45,7 +45,7 @@ import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import ch.quantasy.gateway.message.ledStrip.LEDFrame;
 import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -54,13 +54,13 @@ import java.util.Random;
  *
  * @author reto
  */
-public class DarkSparklingFire extends AnLEDAbility {
+public class RedBlueRipples extends AnLEDAbility {
 
     Random random = new Random();
 
     private final List<LEDFrame> frames;
 
-    public DarkSparklingFire(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
+    public RedBlueRipples(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
         super(gatewayClient, ledServiceContract, config);
         frames = new ArrayList<>();
     }
@@ -78,28 +78,33 @@ public class DarkSparklingFire extends AnLEDAbility {
         }
         super.setLEDFrame(flash);
 
-        int RED = 128;
-        int GREEN = 45;
-        int BLUE = 5;
-        
+        int RED = 255;
+        int GREEN = 90;
+        int BLUE = 10;
+
+        Dot[] dots = new Dot[1];
+        for (int i = 0; i < dots.length; i++) {
+            dots[i] = new Dot(dots.length);
+        }
+
         try {
             while (true) {
                 while (frames.size() < 150) {
                     for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
-                        double damper = random.nextDouble();
-                        leds.setColor((short) 2, (short) position, (short) Math.max(RED / 5, Math.min(RED, RED * damper)));
-                        leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 5, Math.min(GREEN, GREEN * damper)));
-                        leds.setColor((short) 0, (short) position, (short) Math.max(BLUE / 5, Math.min(BLUE, BLUE * damper)));
-                    }
-                    LEDFrame sparkly = new LEDFrame(leds);
-                    for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
-                        if (random.nextInt(200) == 0) {
-                            for (int channel = 0; channel < super.getConfig().getChipType().numberOfChannels; channel++) {
-                                sparkly.setColor((short) channel, (short) position, (short) 255);
-                            }
+                        leds.setColor((short) 0, (short) position, (short) 0);
+                        leds.setColor((short) 1, (short) position, (short) 0);
+                        leds.setColor((short) 2, (short) position, (short) 0);
+                        for (int i = 0; i < dots.length; i++) {
+                            Color color = dots[i].getColorFor(position);
+                            System.out.println(""+color);
+                            dots[i].step();
+                            leds.setColor((short) 0, (short) position, (short) (leds.getColor((short) 0, position) + color.getRed()));
+                            leds.setColor((short) 1, (short) position, (short) (leds.getColor((short) 1, position) + color.getGreen()));
+                            leds.setColor((short) 2, (short) position, (short) (leds.getColor((short) 2, position) + color.getBlue()));
                         }
                     }
-                    frames.add(new LEDFrame(sparkly));
+
+                    frames.add(new LEDFrame(leds));
                 }
                 super.setLEDFrames(frames);
                 frames.clear();
@@ -114,6 +119,53 @@ public class DarkSparklingFire extends AnLEDAbility {
             }
         } catch (InterruptedException ex) {
             super.setLEDFrame(getNewLEDFrame());
+        }
+    }
+
+    static class Dot {
+
+        private static Random random = new Random();
+        private int center;
+        private double strength;
+        private int distance;
+        private final int amountOfLEDs;
+        private Color color;
+
+        public Dot(int amountOfLEDs) {
+            this.amountOfLEDs = amountOfLEDs;
+            this.color=new Color(0);
+            step();
+        }
+
+        public Color getColorFor(int position) {
+            System.out.printf("center:%d strenght:%f distance:%d",center,strength,distance);
+            if (position < center) {
+                if ((position + distance) > center) {
+                    return new Color((float) ((color.getRed() / 255.0) * strength), (float) ((color.getGreen() / 255.0) * strength), (float) ((color.getBlue() / 255.0) * strength));
+                } else {
+                    return new Color(0);
+                }
+            }
+            if (position > center) {
+                if ((position - distance) < center) {
+                    return new Color((float) ((color.getRed() / 255.0) * strength), (float) ((color.getGreen() / 255.0) * strength), (float) ((color.getBlue() / 255.0) * strength));
+                } else {
+                    return new Color(0);
+                }
+            }
+            return new Color((float) ((color.getRed() / 255.0) * strength), (float) ((color.getGreen() / 255.0) * strength), (float) ((color.getBlue() / 255.0) * strength));
+
+        }
+
+        public void step() {
+            this.strength -= 0.1;
+            this.distance++;
+            if (color.getRGB()==-16777216) {
+                strength = random.nextDouble();
+                this.distance = 0;
+                this.center = random.nextInt(amountOfLEDs);
+                this.color = new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255));
+            }
         }
     }
 }

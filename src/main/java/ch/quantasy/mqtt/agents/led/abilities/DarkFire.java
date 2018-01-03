@@ -54,13 +54,13 @@ import java.util.Random;
  *
  * @author reto
  */
-public class DarkSparklingFire extends AnLEDAbility {
+public class DarkFire extends AnLEDAbility {
 
     Random random = new Random();
 
     private final List<LEDFrame> frames;
 
-    public DarkSparklingFire(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
+    public DarkFire(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
         super(gatewayClient, ledServiceContract, config);
         frames = new ArrayList<>();
     }
@@ -78,8 +78,8 @@ public class DarkSparklingFire extends AnLEDAbility {
         }
         super.setLEDFrame(flash);
 
-        int RED = 128;
-        int GREEN = 45;
+        int RED = 255;
+        int GREEN = 65;
         int BLUE = 5;
         
         try {
@@ -91,15 +91,8 @@ public class DarkSparklingFire extends AnLEDAbility {
                         leds.setColor((short) 1, (short) position, (short) Math.max(GREEN / 5, Math.min(GREEN, GREEN * damper)));
                         leds.setColor((short) 0, (short) position, (short) Math.max(BLUE / 5, Math.min(BLUE, BLUE * damper)));
                     }
-                    LEDFrame sparkly = new LEDFrame(leds);
-                    for (int position = 0; position < leds.getNumberOfLEDs(); position++) {
-                        if (random.nextInt(200) == 0) {
-                            for (int channel = 0; channel < super.getConfig().getChipType().numberOfChannels; channel++) {
-                                sparkly.setColor((short) channel, (short) position, (short) 255);
-                            }
-                        }
-                    }
-                    frames.add(new LEDFrame(sparkly));
+                    LEDFrame fire = new LEDFrame(leds);
+                    frames.add(fire);
                 }
                 super.setLEDFrames(frames);
                 frames.clear();
