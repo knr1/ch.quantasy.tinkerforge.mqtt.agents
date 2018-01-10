@@ -126,6 +126,8 @@ public class ThermalImagingAgent extends GenericTinkerforgeAgent {
             @Override
             public void messageReceived(String topic, byte[] mm) throws Exception {
                 SortedSet<HighContrastImageEvent> images = new TreeSet<>(toMessageSet(mm, HighContrastImageEvent.class));
+                if(images.size()>1)
+                    System.out.println("Images: "+images.size());
                 int[] image = images.last().getValue();
 
                 // The following is copied from the example provided by Tinkerforge
@@ -167,6 +169,8 @@ public class ThermalImagingAgent extends GenericTinkerforgeAgent {
 
     public static void main(String... args) throws Throwable {
         URI mqttURI = URI.create("tcp://127.0.0.1:1883");
+        //URI mqttURI = URI.create("tcp://iot.eclipse.org:1883");
+
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);
         } else {
