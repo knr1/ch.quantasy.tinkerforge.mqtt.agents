@@ -43,7 +43,7 @@
 package ch.quantasy.mqtt.agents.led;
 
 
-import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.ledStrip.LEDStripServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;

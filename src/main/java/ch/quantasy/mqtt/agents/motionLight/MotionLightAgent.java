@@ -44,8 +44,8 @@ package ch.quantasy.mqtt.agents.motionLight;
 
 import ch.quantasy.gateway.message.TimerIntent;
 import ch.quantasy.gateway.message.remoteSwitch.RemoteSwitchIntent;
-import ch.quantasy.gateway.service.device.motionDetector.MotionDetectorServiceContract;
-import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.motionDetector.MotionDetectorServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;

@@ -42,7 +42,7 @@
  */
 package ch.quantasy.mqtt.agents.Segment7x4;
 
-import ch.quantasy.gateway.service.device.segment4x7.Segment4x7ServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.segment4x7.Segment4x7ServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;

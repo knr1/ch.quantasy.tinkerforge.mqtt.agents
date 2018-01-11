@@ -43,9 +43,9 @@
 package ch.quantasy.mqtt.agents.outerLights;
 
 import ch.quantasy.gateway.message.ambientLight.AmbientLightIntent;
-import ch.quantasy.gateway.service.device.ambientLight.AmbientLightServiceContract;
-import ch.quantasy.gateway.service.device.dc.DCServiceContract;
-import ch.quantasy.gateway.service.device.motionDetector.MotionDetectorServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.ambientLight.AmbientLightServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.dc.DCServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.motionDetector.MotionDetectorServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.gateway.service.timer.TimerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;

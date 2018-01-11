@@ -41,7 +41,7 @@
  */
 package ch.quantasy.mqtt.agents.led.abilities;
 
-import ch.quantasy.gateway.service.device.ledStrip.LEDStripServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.ledStrip.LEDStripServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
 import ch.quantasy.gateway.message.ledStrip.LEDFrame;
 import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;

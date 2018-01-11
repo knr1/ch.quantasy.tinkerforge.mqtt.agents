@@ -47,7 +47,7 @@ import ch.quantasy.gateway.message.RGBLEDButton.ButtonEvent;
 import ch.quantasy.gateway.message.RGBLEDButton.RGBColor;
 import ch.quantasy.gateway.message.RGBLEDButton.RGBLEDButtonIntent;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.service.device.RGBLEDButton.RGBLEDButtonServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.RGBLEDButton.RGBLEDButtonServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;

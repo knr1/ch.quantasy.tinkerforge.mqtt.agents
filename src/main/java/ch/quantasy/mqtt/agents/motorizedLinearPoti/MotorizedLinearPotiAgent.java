@@ -47,7 +47,7 @@ import ch.quantasy.gateway.message.motorizedLinearPoti.DriveMode;
 import ch.quantasy.gateway.message.motorizedLinearPoti.MotorizedLinearPotiIntent;
 import ch.quantasy.gateway.message.motorizedLinearPoti.PositionEvent;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.service.device.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;

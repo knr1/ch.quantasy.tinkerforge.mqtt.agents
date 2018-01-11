@@ -54,7 +54,7 @@ import java.util.HashSet;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
 import ch.quantasy.gateway.message.stack.TinkerforgeStackIntent;
-import ch.quantasy.gateway.service.device.dualRelay.DualRelayServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.dualRelay.DualRelayServiceContract;
 
 /**
  *

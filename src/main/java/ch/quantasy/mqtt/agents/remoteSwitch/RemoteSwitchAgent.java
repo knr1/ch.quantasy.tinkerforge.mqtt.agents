@@ -42,7 +42,7 @@
  */
 package ch.quantasy.mqtt.agents.remoteSwitch;
 
-import ch.quantasy.gateway.service.device.remoteSwitch.RemoteSwitchServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;

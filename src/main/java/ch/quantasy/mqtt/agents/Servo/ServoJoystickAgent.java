@@ -44,8 +44,8 @@ package ch.quantasy.mqtt.agents.Servo;
 
 import ch.quantasy.gateway.message.joystick.JoystickIntent;
 import ch.quantasy.gateway.message.joystick.PositionEvent;
-import ch.quantasy.gateway.service.device.joystick.JoystickServiceContract;
-import ch.quantasy.gateway.service.device.servo.ServoServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.joystick.JoystickServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.servo.ServoServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;

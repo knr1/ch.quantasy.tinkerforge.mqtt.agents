@@ -12,7 +12,7 @@ import ch.quantasy.gateway.message.thermalImage.ImageTransferConfig;
 import ch.quantasy.gateway.message.thermalImage.StatisticsEvent;
 import ch.quantasy.gateway.message.thermalImage.TemperatureResolution;
 import ch.quantasy.gateway.message.thermalImage.ThermalImageIntent;
-import ch.quantasy.gateway.service.device.thermalImaging.ThermalImagingServiceContract;
+import ch.quantasy.gateway.service.tinkerforge.thermalImaging.ThermalImagingServiceContract;
 import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
