@@ -96,7 +96,7 @@ public class MotionLightAgentUG extends GenericTinkerforgeAgent {
 
         subscribe(motionDetectorServiceContract.EVENT_DETECTION_CYCLE_ENDED, (topic, payload) -> {
             System.out.println(timerContract.INTENT);
-            publishIntent(timerContract.INTENT, new TimerIntent("lights/UG", System.currentTimeMillis(), 1000 * 60, null, null, null));
+            publishIntent(timerContract.INTENT, new TimerIntent("lights/UG", System.currentTimeMillis(), 1000 * 60 * 5, null, null, null));
 
         });
         subscribe(motionDetectorServiceContract.EVENT_MOTION_DETECTED, (topic, payload) -> {
