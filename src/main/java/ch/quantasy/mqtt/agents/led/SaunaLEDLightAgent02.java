@@ -68,14 +68,12 @@ public class SaunaLEDLightAgent02 extends GenericTinkerforgeAgent {
     private final List<WaveAdjustableBrightness> waveList;
     private final int frameDurationInMillis;
     private final int amountOfLEDs;
-    private int delayInMinutes;
 
     public SaunaLEDLightAgent02(URI mqttURI) throws MqttException {
         super(mqttURI, "9h83482", new GenericTinkerforgeAgentContract("AmbientLEDLight", "saunaWave"));
         connect();
-        frameDurationInMillis = 55;
-        amountOfLEDs = 120;
-        delayInMinutes = 1;
+        frameDurationInMillis = 80;
+        amountOfLEDs = 240;
         waveList = new ArrayList<>();
 
        if (super.getTinkerforgeManagerServiceContracts().length == 0) {
@@ -84,7 +82,7 @@ public class SaunaLEDLightAgent02 extends GenericTinkerforgeAgent {
         }
 
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("localhost"));
+        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("obergeschoss"));
 
         LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BRGW);
         LEDStripServiceContract ledServiceContract = new LEDStripServiceContract("wU1", TinkerforgeDeviceClass.LEDStrip.toString());
@@ -108,12 +106,12 @@ public class SaunaLEDLightAgent02 extends GenericTinkerforgeAgent {
 
         @Override
         public void messageReceived(String topic, byte[] mm) throws Exception {
-            SortedSet<CountEvent> countEvents= new TreeSet(toMessageSet(mm, CountEvent.class));
+            SortedSet<CountEvent> countEvents= toMessageSet(mm, CountEvent.class);
             if (latestCount == null) {
-                latestCount = countEvents.last().getValue();
+                latestCount = countEvents.last().value;
             }
             int difference = latestCount;
-            latestCount = countEvents.last().getValue();
+            latestCount = countEvents.last().value;
             changeAmbientBrightness((difference - latestCount) / 100.0);
         }
 

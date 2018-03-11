@@ -80,7 +80,7 @@ public class LEDAgentMovingDot extends GenericTinkerforgeAgent {
         super(mqttURI, "eineBeliebigeMQTT-ClientID", new GenericTinkerforgeAgentContract("LEDAgent", "movingDots"));
         connect();
         frameDurationInMillis = 30;
-        amountOfLEDs = 25;
+        amountOfLEDs = 240;
 
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
@@ -89,11 +89,11 @@ public class LEDAgentMovingDot extends GenericTinkerforgeAgent {
 
         //We are expecting a single TinkerforgeStackManager being active... so we only take the 'first' one in order to connect the Tinkerforge Stack
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("obergeschoss"));
         LedStripIntent ledIntent = new LedStripIntent();
-        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2801, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.GRBW);
+        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.GRBW);
         ledIntent.config = config;
-        LEDStripServiceContract ledServiceContract = new LEDStripServiceContract("wSj", TinkerforgeDeviceClass.LEDStrip.toString());
+        LEDStripServiceContract ledServiceContract = new LEDStripServiceContract("wU1", TinkerforgeDeviceClass.LEDStrip.toString());
         publishIntent(ledServiceContract.INTENT, ledIntent);
 
         subscribe(ledServiceContract.EVENT_LAGING, (topic, payload) -> {

@@ -57,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -76,8 +75,8 @@ public class RedBlueColliding extends GenericTinkerforgeAgent {
         super(mqttURI, "433407hfra", new GenericTinkerforgeAgentContract("AmbientLEDLight", "lulu"));
         connect();
 
-        frameDurationInMillis = 30;
-        amountOfLEDs = 16;
+        frameDurationInMillis = 80;
+        amountOfLEDs = 240;
         abilities = new ArrayList<>();
 
         //connectRemoteServices(new TinkerforgeStackAddress("lights01"));
@@ -87,13 +86,13 @@ public class RedBlueColliding extends GenericTinkerforgeAgent {
         }
 
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("localhost"));
+        connectTinkerforgeStacksTo(managerServiceContract,new TinkerforgeStackAddress("obergeschoss"));
 
         // LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2811, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.BRG);
         LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.RGBW);
 
-        LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("iHn", TinkerforgeDeviceClass.LEDStrip.toString());
-        // LEDStripServiceContract ledServiceContract2 = new LEDStripServiceContract("p5z", TinkerforgeDeviceClass.LEDStrip.toString());
+        //LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("iHn", TinkerforgeDeviceClass.LEDStrip.toString());
+         LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("wU1", TinkerforgeDeviceClass.LEDStrip.toString());
 
         abilities.add(new ColidingDots(this, ledServiceContract1, config));
         //  waveList.add(new Wave(ledServiceContract2, config));

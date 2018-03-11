@@ -80,7 +80,7 @@ public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
 
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
-        button = new RGBLEDButtonServiceContract("D46");
+        button = new RGBLEDButtonServiceContract("D3Y");
         blinky = new Blinky();
         t = new Thread(blinky);
         t.start();
@@ -94,11 +94,11 @@ public class RGBLEDButtonAgent extends GenericTinkerforgeAgent {
             mc.add(topic, toMessageSet(payload, ButtonEvent.class));
             ButtonEvent event = mc.retrieveLastMessage(topic);
             RGBLEDButtonIntent buttonIntent = new RGBLEDButtonIntent();
-            if (event.getState() == ButtonState.PRESSED) {
+            if (event.state== ButtonState.PRESSED) {
                 blinky.setBlinkStartRelativeToNow(300000);
                 buttonIntent.color = new RGBColor(100, 255, 0);
             }
-            if (event.getState() == ButtonState.RELEASED) {
+            if (event.state == ButtonState.RELEASED) {
                 blinky.setBlinkStartRelativeToNow(3000);
                 buttonIntent.color = new RGBColor(255, 80, 0);
             }

@@ -89,13 +89,13 @@ public class ConcurrentPoties extends GenericTinkerforgeAgent {
         publishIntent(potiA.INTENT,intent);
         publishIntent(potiB.INTENT,intent);
         subscribe(potiA.EVENT_POSITION, (topic, payload) -> {
-            PositionEvent positionEvent=new TreeSet<>(toMessageSet(payload, PositionEvent.class)).last();
-            intent.motorPosition=new DeviceMotorPosition(positionEvent.getValue(), DriveMode.FAST, false);
+            PositionEvent positionEvent=toMessageSet(payload, PositionEvent.class).last();
+            intent.motorPosition=new DeviceMotorPosition(positionEvent.value, DriveMode.FAST, false);
             publishIntent(potiB.INTENT, intent);
         });
         subscribe(potiB.EVENT_POSITION, (topic, payload) -> {
-            PositionEvent positionEvent=new TreeSet<>(toMessageSet(payload, PositionEvent.class)).last();
-            intent.motorPosition=new DeviceMotorPosition(positionEvent.getValue(), DriveMode.FAST, false);
+            PositionEvent positionEvent=toMessageSet(payload, PositionEvent.class).last();
+            intent.motorPosition=new DeviceMotorPosition(positionEvent.value, DriveMode.FAST, false);
             publishIntent(potiA.INTENT, intent);
         });
         

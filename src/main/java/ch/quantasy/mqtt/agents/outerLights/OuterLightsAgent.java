@@ -126,9 +126,9 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
             subscribe(ambientLightServiceContract.EVENT_ILLUMINANCE_REACHED, (String topic, byte[] payload) -> {
                 SortedSet<IlluminanceEvent> illuminances = new TreeSet(toMessageSet(payload, IlluminanceEvent.class));
                 IlluminanceEvent illuminance = illuminances.last();
-                if (illuminance.getValue() < 100) {
+                if (illuminance.value < 100) {
                     delayedOff.setPaused(false);
-                } else if (illuminance.getValue() > 20) {
+                } else if (illuminance.value > 20) {
                     delayedOff.setPaused(true);
                 }
                 Logger.getLogger(OuterLightsAgent.class.getName()).log(Level.INFO, "Illuminance: ", illuminance);

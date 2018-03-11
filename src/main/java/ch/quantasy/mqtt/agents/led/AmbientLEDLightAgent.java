@@ -173,10 +173,10 @@ public class AmbientLEDLightAgent extends GenericTinkerforgeAgent {
         public void messageReceived(String topic, byte[] mm) throws Exception {
             SortedSet<CountEvent> countEvents= new TreeSet(toMessageSet(mm, CountEvent.class));
             if (latestCount == null) {
-                latestCount = countEvents.last().getValue();
+                latestCount = countEvents.last().value;
             }
             int difference = latestCount;
-            latestCount = countEvents.last().getValue();
+            latestCount = countEvents.last().value;
             changeAmbientBrightness((difference - latestCount) / 100.0);
         }
 

@@ -128,7 +128,7 @@ public class ThermalImagingAgent extends GenericTinkerforgeAgent {
                 SortedSet<HighContrastImageEvent> images = new TreeSet<>(toMessageSet(mm, HighContrastImageEvent.class));
                 if(images.size()>1)
                     System.out.println("Images: "+images.size());
-                int[] image = images.last().getValue();
+                int[] image = images.last().value;
 
                 // The following is copied from the example provided by Tinkerforge
                 // Use palette mapping to create thermal image coloring 

@@ -49,53 +49,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This LEDAbility prepares 150 frames where each frame has another led lit.
- * It keeps checking that the LEDStrip-service does not underrun hence as soon as the LEDStrip-service publishes a stock-value lower than
- * 100, the next pile of frames is sent.
+ * This LEDAbility prepares 150 frames where each frame has another led lit. It
+ * keeps checking that the LEDStrip-service does not underrun hence as soon as
+ * the LEDStrip-service publishes a stock-value lower than 100, the next pile of
+ * frames is sent.
+ *
  * @author reto
  */
 public class MovingDot extends AnLEDAbility {
-        private final List<LEDFrame> frames;
 
-        public MovingDot(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
-            super(gatewayClient, ledServiceContract, config);
-            frames=new ArrayList<>();
+    private final List<LEDFrame> frames;
+
+    public MovingDot(GatewayClient gatewayClient, LEDStripServiceContract ledServiceContract, LEDStripDeviceConfig config) {
+        super(gatewayClient, ledServiceContract, config);
+        frames = new ArrayList<>();
+    }
+
+    public void run() {
+        LEDFrame leds = super.getNewLEDFrame();
+
+        for (int i = 0; i < leds.getNumberOfChannels(); i++) {
+            leds.setColor((short) i, (short) 0, (short) 255);
         }
+        try {
+            LEDFrame newLEDs = super.getNewLEDFrame();
+            while (true) {
+                while (frames.size() < 150) {
+                    for (int channel = 0; channel < leds.getNumberOfChannels(); channel++) {
 
-        public void run() {
-            LEDFrame leds = super.getNewLEDFrame();
-
-            for (int i = 0; i < leds.getNumberOfChannels(); i++) {
-                leds.setColor((short) i, (short) 0, (short) 255);
-            }
-            try {
-                LEDFrame newLEDs = super.getNewLEDFrame();
-                while (true) {
-                    while (frames.size() < 150) {
                         for (int led = 1; led < leds.getNumberOfLEDs(); led++) {
-                            for (int channel = 0; channel < leds.getNumberOfChannels(); channel++) {
-                                newLEDs.setColor((short) channel, (short) led, leds.getColor(channel, led - 1));
-                            }
+                            newLEDs.setColor((short) channel, (short) led, leds.getColor(channel, led - 1));
                         }
-                        LEDFrame tmpLEDs = leds;
-                        leds = newLEDs;
-                        newLEDs = tmpLEDs;
-                        frames.add(new LEDFrame(leds));
+                        newLEDs.setColor((short)channel, (short)0, leds.getColor(channel, leds.getNumberOfLEDs()-1));
                     }
-                    super.setLEDFrames(frames);
-                    frames.clear();
+                    frames.add(new LEDFrame(newLEDs));
+                    leds = newLEDs;
+                    newLEDs = super.getNewLEDFrame();
+                }
+                super.setLEDFrames(frames);
+                frames.clear();
 
-                    Thread.sleep(super.getConfig().getFrameDurationInMilliseconds() * 50);
+                Thread.sleep(super.getConfig().getFrameDurationInMilliseconds() * 50);
 
-                    synchronized (this) {
-                        while (super.getCounter() > 100) {
-                            this.wait(super.getConfig().getFrameDurationInMilliseconds() * 1000);
-                        }
+                synchronized (this) {
+                    while (super.getCounter() > 100) {
+                        this.wait(super.getConfig().getFrameDurationInMilliseconds() * 1000);
                     }
                 }
-            } catch (InterruptedException ex) {
-                super.setLEDFrame(getNewLEDFrame());
             }
+        } catch (InterruptedException ex) {
+            super.setLEDFrame(getNewLEDFrame());
         }
-
     }
+
+}

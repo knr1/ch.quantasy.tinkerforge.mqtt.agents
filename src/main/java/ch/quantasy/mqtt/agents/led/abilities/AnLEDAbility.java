@@ -115,7 +115,7 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
             SortedSet<RenderedEvent>framesRendered = new TreeSet(gatewayClient.toMessageSet(payload, RenderedEvent.class));
             
             if (!framesRendered.isEmpty()) {
-                counter = framesRendered.last().getValue();
+                counter = framesRendered.last().value;
                 this.notifyAll();
             }
         }

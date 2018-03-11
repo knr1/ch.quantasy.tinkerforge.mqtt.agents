@@ -6,6 +6,7 @@
 package ch.quantasy.mqtt.agents;
 
 import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
+import ch.quantasy.mqtt.gateway.client.message.Message;
 import java.util.Map;
 
 /**
@@ -17,5 +18,11 @@ public class GenericTinkerforgeAgentContract extends AyamlServiceContract{
     public GenericTinkerforgeAgentContract(String rootContext, String baseClass) {
         super("Agent",rootContext, baseClass);
     }
+
+    @Override
+    public void setMessageTopics(Map<String, Class<? extends Message>> messageTopicMap) {
+        //Nothing
+    }
+    
     
 }
