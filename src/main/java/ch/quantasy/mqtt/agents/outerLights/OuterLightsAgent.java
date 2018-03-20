@@ -42,20 +42,20 @@
  */
 package ch.quantasy.mqtt.agents.outerLights;
 
-import ch.quantasy.gateway.message.ambientLight.AmbientLightIntent;
-import ch.quantasy.gateway.service.tinkerforge.ambientLight.AmbientLightServiceContract;
-import ch.quantasy.gateway.service.tinkerforge.dc.DCServiceContract;
-import ch.quantasy.gateway.service.tinkerforge.motionDetector.MotionDetectorServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
-import ch.quantasy.gateway.service.timer.TimerServiceContract;
+import ch.quantasy.gateway.binding.TimerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.ambientLight.AmbientLightIntent;
+import ch.quantasy.gateway.binding.tinkerforge.ambientLight.AmbientLightServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.gateway.message.ambientLight.DeviceIlluminanceCallbackThreshold;
-import ch.quantasy.gateway.message.ambientLight.IlluminanceEvent;
-import ch.quantasy.gateway.message.dc.DCIntent;
+import ch.quantasy.gateway.binding.tinkerforge.ambientLight.DeviceIlluminanceCallbackThreshold;
+import ch.quantasy.gateway.binding.tinkerforge.ambientLight.IlluminanceEvent;
+import ch.quantasy.gateway.binding.tinkerforge.dc.DCIntent;
+import ch.quantasy.gateway.binding.tinkerforge.dc.DCServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.motionDetector.MotionDetectorServiceContract;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;

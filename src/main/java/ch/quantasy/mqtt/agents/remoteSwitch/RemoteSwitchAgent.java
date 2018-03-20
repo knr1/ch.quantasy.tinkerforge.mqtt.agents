@@ -42,22 +42,22 @@
  */
 package ch.quantasy.mqtt.agents.remoteSwitch;
 
-import ch.quantasy.gateway.service.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.message.remoteSwitch.DimSocketBParameters;
-import ch.quantasy.gateway.message.remoteSwitch.DimSocketBParametersStatus;
-import ch.quantasy.gateway.message.remoteSwitch.RemoteSwitchIntent;
-import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketBParameters;
-import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketBParametersStatus;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.SwitchSocketBParameters;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.SwitchSocketParameters;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.RemoteSwitchConfiguration;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.RemoteSwitchV2Intent;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.RemoteSwitchV2ServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.RemoteType;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.SwitchBEvent;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  *
@@ -68,14 +68,19 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
     private final RemoteSwitchServiceContract remoteSwitchUG;
     private final RemoteSwitchServiceContract remoteSwitchEG;
     private final RemoteSwitchServiceContract remoteSwitchOG;
+    private final RemoteSwitchV2ServiceContract remoteSwitchListenerOG;
+
+    private int repeats;
 
     public RemoteSwitchAgent(URI mqttURI) throws MqttException {
-        super(mqttURI, "5pq34in", new GenericTinkerforgeAgentContract("RemoteSwitcher", "remoteSwitcher01"));
+        super(mqttURI, "r4zwob2", new GenericTinkerforgeAgentContract("RemoteSwitcher", "remoteSwitcher01"));
         connect();
 
         remoteSwitchUG = new RemoteSwitchServiceContract("qD7");
         remoteSwitchEG = new RemoteSwitchServiceContract("jKQ");
         remoteSwitchOG = new RemoteSwitchServiceContract("jKE");
+        
+        remoteSwitchListenerOG=new RemoteSwitchV2ServiceContract("E1u");
 
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
@@ -83,47 +88,33 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
         }
 
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("erdgeschoss"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("remoteSwitchListener"),new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("erdgeschoss"));
 
-        subscribe("WebView/RemoteSwitch/E/touched/remoteSwitch/#", new MessageReceiver() {
+        RemoteSwitchV2Intent remoteSwitchV2Intent=new RemoteSwitchV2Intent();
+        remoteSwitchV2Intent.remoteSwitchConfiguration=new RemoteSwitchConfiguration(RemoteType.B, true, 5);
+        publishIntent(remoteSwitchListenerOG.INTENT, remoteSwitchV2Intent);
+        subscribe(remoteSwitchListenerOG.EVENT_SWITCH_B, new MessageReceiver() {
             @Override
             public void messageReceived(String topic, byte[] mm) throws Exception {
-
-                    SortedSet<SwitcherEvent> switchers=new TreeSet(toMessageSet(mm, SwitcherEvent.class));
-                SwitcherEvent switcher = switchers.last();
                 RemoteSwitchServiceContract contract = null;
-                switch (switcher.getFloor()) {
-                    case "UG":
-                        contract = remoteSwitchUG;
-                        break;
-                    case "OG":
+                SwitchBEvent switcher = toMessageSet(mm, SwitchBEvent.class).last();
+                if (switcher.repeats < repeats || switcher.repeats > repeats + 5) {
+                    repeats = switcher.repeats;
+
+                    if (switcher.address == 23064012 && switcher.unit == 5) {
                         contract = remoteSwitchOG;
-                        break;
-                    case "EG":
-                        contract = remoteSwitchEG;
-                        break;
-                    default:
-                }
-                if (contract == null) {
-                    return;
-                }
-                if (switcher.getType().equals("switchSocketB")) {
-                  
-                    RemoteSwitchIntent remoteSwitchIntent=new RemoteSwitchIntent();
-                    remoteSwitchIntent.switchSocketBParameters=new SwitchSocketBParameters(switcher.getAddress(),switcher.getUnit(), switcher.getSwitchingValue());
-                    publishIntent(contract.INTENT, remoteSwitchIntent);
-                }
-                if (switcher.getType().equals("dimSocketB")) {
-                    RemoteSwitchIntent remoteSwitchIntent=new RemoteSwitchIntent();
-                    remoteSwitchIntent.dimSocketBParameters=new DimSocketBParameters(switcher.getAddress(),switcher.getUnit(),switcher.getDimValue());
+                    }
+                    if (contract == null) {
+                        return;
+                    }
+                    RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+                    remoteSwitchIntent.switchSocketBParameters = new SwitchSocketBParameters(4, (short) 3, SwitchSocketParameters.SwitchTo.getSwitchToFor((short) switcher.switchTo));
                     publishIntent(contract.INTENT, remoteSwitchIntent);
                 }
             }
         }
         );
     }
-
-    
 
     public static void main(String[] args) throws Throwable {
         //URI mqttURI = URI.create("tcp://smarthome01:1883");

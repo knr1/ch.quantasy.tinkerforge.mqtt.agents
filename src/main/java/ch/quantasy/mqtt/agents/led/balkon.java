@@ -42,30 +42,23 @@
  */
 package ch.quantasy.mqtt.agents.led;
 
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.led.abilities.AnLEDAbility;
 
-import ch.quantasy.gateway.service.tinkerforge.ledStrip.LEDStripServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.agents.led.abilities.Fire;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.ledStrip.LagingEvent;
-import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.mqtt.agents.led.abilities.ColidingDots;
-import ch.quantasy.mqtt.agents.led.abilities.DarkFire;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LagingEvent;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import ch.quantasy.mqtt.agents.led.abilities.DarkSparklingFire;
-import ch.quantasy.mqtt.agents.led.abilities.RedBlueRipples;
-import ch.quantasy.mqtt.agents.led.abilities.SparklingFire;
-import ch.quantasy.mqtt.agents.led.abilities.WaveAdjustableBrightness;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;

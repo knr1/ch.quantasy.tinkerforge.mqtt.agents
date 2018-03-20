@@ -42,24 +42,18 @@
  */
 package ch.quantasy.mqtt.agents.motorizedLinearPoti;
 
-import ch.quantasy.gateway.message.motorizedLinearPoti.DeviceMotorPosition;
-import ch.quantasy.gateway.message.motorizedLinearPoti.DevicePositionCallbackConfiguration;
-import ch.quantasy.gateway.message.motorizedLinearPoti.DriveMode;
-import ch.quantasy.gateway.message.motorizedLinearPoti.MotorizedLinearPotiIntent;
-import ch.quantasy.gateway.message.motorizedLinearPoti.PositionEvent;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.service.tinkerforge.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.DeviceMotorPosition;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.DevicePositionCallbackConfiguration;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.DriveMode;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.MotorizedLinearPotiIntent;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.PositionEvent;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.mqtt.gateway.client.message.MessageCollector;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 /**

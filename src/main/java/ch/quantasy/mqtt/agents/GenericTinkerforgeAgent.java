@@ -5,13 +5,13 @@
  */
 package ch.quantasy.mqtt.agents;
 
-import ch.quantasy.gateway.message.stackManager.ConnectStatus;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
-import ch.quantasy.gateway.service.timer.TimerServiceContract;
+import ch.quantasy.gateway.binding.TimerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.ConnectStatus;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.gateway.client.contract.AyamlServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackIntent;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackIntent;
 import ch.quantasy.mqtt.gateway.client.message.Intent;
 import ch.quantasy.mqtt.gateway.client.message.MessageCollector;
 import ch.quantasy.mqtt.gateway.client.message.PublishingMessageCollector;

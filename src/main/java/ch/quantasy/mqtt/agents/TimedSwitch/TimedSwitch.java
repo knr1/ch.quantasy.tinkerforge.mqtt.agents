@@ -42,18 +42,18 @@
  */
 package ch.quantasy.mqtt.agents.TimedSwitch;
 
-import ch.quantasy.gateway.message.EpochDeltaEvent;
-import ch.quantasy.gateway.message.TimerIntent;
-import ch.quantasy.gateway.message.remoteSwitch.RemoteSwitchIntent;
-import ch.quantasy.gateway.service.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
-import ch.quantasy.gateway.service.timer.TimerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.EpochDeltaEvent;
+import ch.quantasy.gateway.binding.TimerIntent;
+import ch.quantasy.gateway.binding.TimerServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketCParameters;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.SwitchSocketCParameters;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

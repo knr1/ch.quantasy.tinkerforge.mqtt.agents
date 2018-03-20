@@ -42,14 +42,14 @@
  */
 package ch.quantasy.mqtt.agents.motorizedLinearPoti;
 
-import ch.quantasy.gateway.message.motorizedLinearPoti.DeviceMotorPosition;
-import ch.quantasy.gateway.message.motorizedLinearPoti.DevicePositionCallbackConfiguration;
-import ch.quantasy.gateway.message.motorizedLinearPoti.DriveMode;
-import ch.quantasy.gateway.message.motorizedLinearPoti.MotorizedLinearPotiIntent;
-import ch.quantasy.gateway.message.motorizedLinearPoti.PositionEvent;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.service.tinkerforge.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.DeviceMotorPosition;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.DevicePositionCallbackConfiguration;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.DriveMode;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.MotorizedLinearPotiIntent;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.MotorizedLinearPotiServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.motorizedLinearPoti.PositionEvent;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import java.net.URI;
@@ -77,8 +77,8 @@ public class MasterSlave extends GenericTinkerforgeAgent {
 
         managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("localhost"));
-        MotorizedLinearPotiServiceContract potiA = new MotorizedLinearPotiServiceContract("D4w");
-        MotorizedLinearPotiServiceContract potiB = new MotorizedLinearPotiServiceContract("D4J");
+        MotorizedLinearPotiServiceContract potiA = new MotorizedLinearPotiServiceContract("D4J");
+        MotorizedLinearPotiServiceContract potiB = new MotorizedLinearPotiServiceContract("D4w");
         intent = new MotorizedLinearPotiIntent();
         intent.positionCallbackConfiguration = new DevicePositionCallbackConfiguration(1, true, 'x', 0, 0);
         publishIntent(potiA.INTENT, intent);

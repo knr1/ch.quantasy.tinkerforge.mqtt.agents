@@ -40,69 +40,86 @@
  *  *
  *  *
  */
-package ch.quantasy.mqtt.agents.led;
+package ch.quantasy.mqtt.agents.remoteSwitch;
 
 import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
-import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LagingEvent;
-import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.DimSocketBParameters;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchIntent;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.SwitchSocketBParameters;
 import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
-import ch.quantasy.mqtt.agents.led.abilities.MovingDot;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 
 /**
- * Diese Klasse nutzt die Möglichkeiten des Generischen TinkerforgeAgents, um
- * einen Stack anzuhängen, und eine LED-Fähigkeit als Strategie um die LEDs
- * anzusteuern. In diesem Fall ist es der Stack auf localhost, mit dem
- * LEDStripBricklet der uid... Als LED-Fähigkeit wird die MovingDot Fähigkeit
- * angehängt, welche das Management der LEDs übernimmt.
  *
  * @author reto
  */
-public class LEDAgentMovingDot extends GenericTinkerforgeAgent {
+public class WebViewRemoteSwitchAgent extends GenericTinkerforgeAgent {
 
-    private final int frameDurationInMillis;
-    private final int amountOfLEDs;
+    private final RemoteSwitchServiceContract remoteSwitchUG;
+    private final RemoteSwitchServiceContract remoteSwitchEG;
+    private final RemoteSwitchServiceContract remoteSwitchOG;
 
-    public LEDAgentMovingDot(URI mqttURI) throws MqttException {
-        super(mqttURI, "eineBeliebigeMQTT-ClientID", new GenericTinkerforgeAgentContract("LEDAgent", "movingDots"));
+    public WebViewRemoteSwitchAgent(URI mqttURI) throws MqttException {
+        super(mqttURI, "5pq34in", new GenericTinkerforgeAgentContract("WebViewRemoteSwitcher", "webViewRemoteSwitcher01"));
         connect();
-        frameDurationInMillis = 30;
-        amountOfLEDs = 240;
+
+        remoteSwitchUG = new RemoteSwitchServiceContract("qD7");
+        remoteSwitchEG = new RemoteSwitchServiceContract("jKQ");
+        remoteSwitchOG = new RemoteSwitchServiceContract("jKE");
 
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
             return;
         }
 
-        //We are expecting a single TinkerforgeStackManager being active... so we only take the 'first' one in order to connect the Tinkerforge Stack
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("obergeschoss"));
-        LedStripIntent ledIntent = new LedStripIntent();
-        LEDStripDeviceConfig config = new LEDStripDeviceConfig(LEDStripDeviceConfig.ChipType.WS2812RGBW, 2000000, frameDurationInMillis, amountOfLEDs, LEDStripDeviceConfig.ChannelMapping.GRBW);
-        ledIntent.config = config;
-        LEDStripServiceContract ledServiceContract = new LEDStripServiceContract("wU1", TinkerforgeDeviceClass.LEDStrip.toString());
-        publishIntent(ledServiceContract.INTENT, ledIntent);
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("erdgeschoss"));
 
-        subscribe(ledServiceContract.EVENT_LAGING, (topic, payload) -> {
-            Set<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);
-            Logger.getLogger(LEDAgentMovingDot.class.getName()).log(Level.INFO, "Laging:", Arrays.toString(lag.toArray(new Object[0])));
-        });
+        subscribe("WebView/RemoteSwitch/E/touched/remoteSwitch/#", new MessageReceiver() {
+            @Override
+            public void messageReceived(String topic, byte[] mm) throws Exception {
 
-        new Thread(new MovingDot(this, ledServiceContract, config)).start();
+                SwitcherEvent switcher = toMessageSet(mm, SwitcherEvent.class).last();
+                RemoteSwitchServiceContract contract = null;
+                switch (switcher.getFloor()) {
+                    case "UG":
+                        contract = remoteSwitchUG;
+                        break;
+                    case "OG":
+                        contract = remoteSwitchOG;
+                        break;
+                    case "EG":
+                        contract = remoteSwitchEG;
+                        break;
+                    default:
+                }
+                if (contract == null) {
+                    return;
+                }
+                if (switcher.getType().equals("switchSocketB")) {
 
+                    RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+                    remoteSwitchIntent.switchSocketBParameters = new SwitchSocketBParameters(switcher.getAddress(), switcher.getUnit(), switcher.getSwitchingValue());
+                    publishIntent(contract.INTENT, remoteSwitchIntent);
+                }
+                if (switcher.getType().equals("dimSocketB")) {
+                    RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+                    remoteSwitchIntent.dimSocketBParameters = new DimSocketBParameters(switcher.getAddress(), switcher.getUnit(), switcher.getDimValue());
+                    publishIntent(contract.INTENT, remoteSwitchIntent);
+                }
+            }
+        }
+        );
     }
 
     public static void main(String[] args) throws Throwable {
+        //URI mqttURI = URI.create("tcp://smarthome01:1883");
+
         URI mqttURI = URI.create("tcp://127.0.0.1:1883");
         if (args.length > 0) {
             mqttURI = URI.create(args[0]);
@@ -110,7 +127,8 @@ public class LEDAgentMovingDot extends GenericTinkerforgeAgent {
             System.out.printf("Per default, 'tcp://127.0.0.1:1883' is chosen.\nYou can provide another address as first argument i.e.: tcp://iot.eclipse.org:1883\n");
         }
         System.out.printf("\n%s will be used as broker address.\n", mqttURI);
-        LEDAgentMovingDot agent = new LEDAgentMovingDot(mqttURI);
+        WebViewRemoteSwitchAgent agent = new WebViewRemoteSwitchAgent(mqttURI);
         System.in.read();
     }
+
 }

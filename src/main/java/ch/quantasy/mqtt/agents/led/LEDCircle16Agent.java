@@ -43,15 +43,15 @@
 package ch.quantasy.mqtt.agents.led;
 
 
-import ch.quantasy.gateway.service.tinkerforge.ledStrip.LEDStripServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.ledStrip.LagingEvent;
-import ch.quantasy.gateway.message.ledStrip.LedStripIntent;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LagingEvent;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LedStripIntent;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import ch.quantasy.mqtt.agents.led.abilities.AnLEDAbility;
 import ch.quantasy.mqtt.agents.led.abilities.Fire;
 import java.net.URI;

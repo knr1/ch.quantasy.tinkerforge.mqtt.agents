@@ -42,22 +42,21 @@
  */
 package ch.quantasy.mqtt.agents.led;
 
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.led.abilities.WaveAdjustableBrightness;
-import ch.quantasy.gateway.service.tinkerforge.ledStrip.LEDStripServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
-import ch.quantasy.gateway.message.rotaryEncoder.CountEvent;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.rotaryEncoder.CountEvent;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  *

@@ -42,25 +42,17 @@
  */
 package ch.quantasy.mqtt.agents.motionLight;
 
-import ch.quantasy.gateway.message.TimerIntent;
-import ch.quantasy.gateway.message.motionDetectorV2.Indicator;
-import ch.quantasy.gateway.message.motionDetectorV2.MotionDetectorV2Intent;
-import ch.quantasy.gateway.message.remoteSwitch.RemoteSwitchIntent;
-import ch.quantasy.gateway.service.tinkerforge.motionDetector.MotionDetectorServiceContract;
-import ch.quantasy.gateway.service.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
-import ch.quantasy.gateway.service.timer.TimerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.TimerIntent;
+import ch.quantasy.gateway.binding.TimerServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.motionDetectorV2.Indicator;
+import ch.quantasy.gateway.binding.tinkerforge.motionDetectorV2.MotionDetectorV2Intent;
+import ch.quantasy.gateway.binding.tinkerforge.motionDetectorV2.MotionDetectorV2ServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.timer.DeviceTickerCancel;
-import ch.quantasy.timer.DeviceTickerConfiguration;
-import ch.quantasy.gateway.message.remoteSwitch.SwitchSocketCParameters;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
-import ch.quantasy.gateway.service.tinkerforge.motionDetectorV2.MotionDetectorV2ServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -94,7 +86,7 @@ public class MotionIndicatorAgent extends GenericTinkerforgeAgent {
         motionDetectorIntent.indicator = new Indicator(0, 0, 0);
         publishIntent(motionDetectorServiceContract.INTENT, motionDetectorIntent);
 
-        subscribe(timerContract.EVENT_TICK + "motionIndicator/direct", (topic, payload) -> {
+        subscribe(timerContract.EVENT_TICK + "/motionIndicator/direct", (topic, payload) -> {
             motionDetectorIntent.indicator = new Indicator(0, 0, 0);
             publishIntent(motionDetectorServiceContract.INTENT, motionDetectorIntent);
         });
@@ -108,7 +100,7 @@ public class MotionIndicatorAgent extends GenericTinkerforgeAgent {
 
         });
         subscribe(motionDetectorServiceContract.EVENT_MOTION_DETECTED, (topic, payload) -> {
-            publishIntent(timerContract.INTENT, new TimerIntent("motionIndicator/drect", true));
+            publishIntent(timerContract.INTENT, new TimerIntent("motionIndicator/direct", true));
             motionDetectorIntent.indicator = new Indicator(255, 255, 255);
             publishIntent(motionDetectorServiceContract.INTENT, motionDetectorIntent);
         });

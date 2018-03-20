@@ -42,19 +42,17 @@
  */
 package ch.quantasy.mqtt.agents.dualRelay;
 
-import ch.quantasy.gateway.message.dualRelay.DeviceSelectedRelayState;
-import ch.quantasy.gateway.message.dualRelay.DualRelayIntent;
-import ch.quantasy.gateway.service.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.dualRelay.DeviceSelectedRelayState;
+import ch.quantasy.gateway.binding.tinkerforge.dualRelay.DualRelayIntent;
+import ch.quantasy.gateway.binding.tinkerforge.dualRelay.DualRelayServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
 import java.net.URI;
-import java.util.Set;
-import java.util.HashSet;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
-import ch.quantasy.gateway.message.stack.TinkerforgeStackIntent;
-import ch.quantasy.gateway.service.tinkerforge.dualRelay.DualRelayServiceContract;
+import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackIntent;
 
 /**
  *

@@ -41,10 +41,10 @@
  */
 package ch.quantasy.mqtt.agents.led.abilities;
 
-import ch.quantasy.gateway.service.tinkerforge.ledStrip.LEDStripServiceContract;
 import ch.quantasy.mqtt.gateway.client.GatewayClient;
-import ch.quantasy.gateway.message.ledStrip.LEDFrame;
-import ch.quantasy.gateway.message.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDFrame;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripDeviceConfig;
+import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
 import java.util.ArrayList;
 import java.util.List;
 
