@@ -51,7 +51,7 @@ import ch.quantasy.tinkerforge.device.TinkerforgeDeviceClass;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripDeviceConfig;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LagingEvent;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;

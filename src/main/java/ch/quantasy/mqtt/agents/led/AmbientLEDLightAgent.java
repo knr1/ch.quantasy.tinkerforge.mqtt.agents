@@ -54,7 +54,7 @@ import ch.quantasy.gateway.binding.tinkerforge.motionDetector.MotionDetectorServ
 import ch.quantasy.gateway.binding.tinkerforge.rotaryEncoder.CountEvent;
 import ch.quantasy.gateway.binding.tinkerforge.rotaryEncoder.RotaryEncoderIntent;
 import ch.quantasy.gateway.binding.tinkerforge.rotaryEncoder.RotaryEncoderServiceContract;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;

@@ -51,7 +51,7 @@ import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchServiceC
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.SwitchSocketCParameters;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import java.util.logging.Level;

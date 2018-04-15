@@ -48,7 +48,7 @@ import ch.quantasy.gateway.binding.tinkerforge.RGBLEDButton.ButtonEvent;
 import ch.quantasy.gateway.binding.tinkerforge.RGBLEDButton.RGBColor;
 import ch.quantasy.gateway.binding.tinkerforge.RGBLEDButton.RGBLEDButtonIntent;
 import ch.quantasy.gateway.binding.tinkerforge.RGBLEDButton.RGBLEDButtonServiceContract;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
 import java.net.URI;

@@ -45,7 +45,7 @@ package ch.quantasy.mqtt.agents.connector;
 import ch.quantasy.gateway.binding.stackManager.StackManagerServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 

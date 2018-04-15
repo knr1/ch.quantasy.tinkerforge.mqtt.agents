@@ -49,7 +49,7 @@ import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.DimSocketBParameters
 import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchIntent;
 import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.RemoteSwitchServiceContract;
 import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.SwitchSocketBParameters;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;

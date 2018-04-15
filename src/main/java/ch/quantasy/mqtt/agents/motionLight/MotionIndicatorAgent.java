@@ -50,7 +50,7 @@ import ch.quantasy.gateway.binding.tinkerforge.motionDetectorV2.MotionDetectorV2
 import ch.quantasy.gateway.binding.tinkerforge.motionDetectorV2.MotionDetectorV2ServiceContract;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgent;
 import ch.quantasy.mqtt.agents.GenericTinkerforgeAgentContract;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 

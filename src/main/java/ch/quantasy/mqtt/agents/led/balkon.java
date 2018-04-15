@@ -52,7 +52,7 @@ import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripDeviceConfig;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LagingEvent;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LedStripIntent;
-import ch.quantasy.gateway.binding.tinkerforge.stack.TinkerforgeStackAddress;
+import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
 import ch.quantasy.mqtt.agents.led.abilities.DarkSparklingFire;
 import java.net.URI;
 import java.util.ArrayList;
