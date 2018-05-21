@@ -124,7 +124,7 @@ public class OuterLightsAgent extends GenericTinkerforgeAgent {
             ambientIntent.illuminanceThreshold = new DeviceIlluminanceCallbackThreshold('o', 20, 100);
             publishIntent(ambientLightServiceContract.INTENT, ambientIntent);
             subscribe(ambientLightServiceContract.EVENT_ILLUMINANCE_REACHED, (String topic, byte[] payload) -> {
-                SortedSet<IlluminanceEvent> illuminances = new TreeSet(toMessageSet(payload, IlluminanceEvent.class));
+                SortedSet<IlluminanceEvent> illuminances = toMessageSet(payload, IlluminanceEvent.class);
                 IlluminanceEvent illuminance = illuminances.last();
                 if (illuminance.value < 100) {
                     delayedOff.setPaused(false);

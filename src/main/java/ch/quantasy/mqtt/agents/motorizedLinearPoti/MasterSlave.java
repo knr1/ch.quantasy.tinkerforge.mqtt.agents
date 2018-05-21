@@ -85,7 +85,7 @@ public class MasterSlave extends GenericTinkerforgeAgent {
         publishIntent(potiB.INTENT, intent);
         intent = new MotorizedLinearPotiIntent();
         subscribe(potiA.EVENT_POSITION, (topic, payload) -> {
-            PositionEvent positionEvent = new TreeSet<>(toMessageSet(payload, PositionEvent.class)).last();
+            PositionEvent positionEvent = toMessageSet(payload, PositionEvent.class).last();
             intent.motorPosition = new DeviceMotorPosition(positionEvent.value, DriveMode.FAST, true);
             publishIntent(potiB.INTENT, intent);
         });

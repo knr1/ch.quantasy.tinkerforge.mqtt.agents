@@ -115,7 +115,7 @@ public class LEDLights01 extends GenericTinkerforgeAgent {
 
         @Override
         public void messageReceived(String topic, byte[] mm) throws Exception {
-            SortedSet<CountEvent> countEvents= new TreeSet(toMessageSet(mm, CountEvent.class));
+            SortedSet<CountEvent> countEvents= toMessageSet(mm, CountEvent.class);
             if (latestCount == null) {
                 latestCount = countEvents.last().value;
             }

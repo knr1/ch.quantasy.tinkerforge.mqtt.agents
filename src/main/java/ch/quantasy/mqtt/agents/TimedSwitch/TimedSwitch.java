@@ -85,12 +85,12 @@ public class TimedSwitch extends GenericTinkerforgeAgent {
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
         connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("untergeschoss"));
         subscribe(timerContract.EVENT_TICK + "/poolPump", (topic, payload) -> {
-            SortedSet<EpochDeltaEvent> epochTimeInMillis = new TreeSet(toMessageSet(payload, EpochDeltaEvent.class));
+            SortedSet<EpochDeltaEvent> epochTimeInMillis = toMessageSet(payload, EpochDeltaEvent.class);
             LocalDateTime theDate
                     = LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTimeInMillis.first().getTimeStamp()), ZoneId.systemDefault());
             int hour = theDate.getHour();
             System.out.printf("Time: %s -> Switch: ", theDate);
-            if (state == SwitchSocketCParameters.SwitchTo.switchOn || (hour > 21 || hour < 7)) {
+            if (state == SwitchSocketCParameters.SwitchTo.switchOn || (hour > 23 || hour < 5)) {
                 switchMotor(SwitchSocketCParameters.SwitchTo.switchOff);
                 state = SwitchSocketCParameters.SwitchTo.switchOff;
                 System.out.println("off");

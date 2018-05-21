@@ -125,7 +125,7 @@ public class ThermalImagingAgent extends GenericTinkerforgeAgent {
         subscribe(contract.EVENT_IMAGE_HIGH_CONTRAST, new MessageReceiver() {
             @Override
             public void messageReceived(String topic, byte[] mm) throws Exception {
-                SortedSet<HighContrastImageEvent> images = new TreeSet<>(toMessageSet(mm, HighContrastImageEvent.class));
+                SortedSet<HighContrastImageEvent> images = toMessageSet(mm, HighContrastImageEvent.class);
                 if(images.size()>1)
                     System.out.println("Images: "+images.size());
                 int[] image = images.last().value;
@@ -145,7 +145,7 @@ public class ThermalImagingAgent extends GenericTinkerforgeAgent {
         subscribe(contract.EVENT_STATISTICS, new MessageReceiver() {
             @Override
             public void messageReceived(String topic, byte[] mm) throws Exception {
-                SortedSet<StatisticsEvent> statistics = new TreeSet<>(toMessageSet(mm, StatisticsEvent.class));
+                SortedSet<StatisticsEvent> statistics = toMessageSet(mm, StatisticsEvent.class);
                 StatisticsEvent statistic = statistics.last();
                 statisticsArea.setText("Minimum °C: " + (statistic.getSpotMeterStatistics().minimumTemperature / 100.0 - 273.15) + "\n"
                         + "Maximum °C: " + (statistic.getSpotMeterStatistics().maximumTemperature / 100.0 - 273.15) + "\n"

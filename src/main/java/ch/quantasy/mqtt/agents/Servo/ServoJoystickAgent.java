@@ -114,7 +114,7 @@ public class ServoJoystickAgent extends GenericTinkerforgeAgent {
         publishIntent(joystickServiceContract.INTENT, joystickIntent);
 
         subscribe(joystickServiceContract.EVENT_POSITION, (topic, payload) -> {
-            SortedSet<PositionEvent> position = new TreeSet(toMessageSet(payload, PositionEvent.class));
+            SortedSet<PositionEvent> position = toMessageSet(payload, PositionEvent.class);
             int joystickX = position.last().x;
             int joystickY = position.last().y;
 
