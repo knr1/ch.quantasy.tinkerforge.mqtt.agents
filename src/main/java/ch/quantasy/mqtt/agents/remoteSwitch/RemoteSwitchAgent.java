@@ -55,7 +55,8 @@ import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.RemoteSwitchV2Serv
 import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.RemoteType;
 import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.SwitchBEvent;
 import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
-import ch.quantasy.mqtt.gateway.client.message.Message;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitch.SwitchSocketCParameters;
+import ch.quantasy.gateway.binding.tinkerforge.remoteSwitchV2.SwitchCEvent;
 import java.net.URI;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import ch.quantasy.mqtt.gateway.client.message.MessageReceiver;
@@ -72,21 +73,23 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
     private final RemoteSwitchServiceContract remoteSwitchEG;
     private final RemoteSwitchServiceContract remoteSwitchOG;
     private final RemoteSwitchV2ServiceContract remoteSwitchListenerBEG;
-    private final RemoteSwitchV2ServiceContract remoteSwitchListenerAOG;
+    private final RemoteSwitchV2ServiceContract remoteSwitchListenerCOG;
     private final RemoteSwitchV2ServiceContract remoteSwitchListenerBOG;
     private final MessageReceiver switcherB;
+    private final MessageReceiver switcherC;
 
     public RemoteSwitchAgent(URI mqttURI) throws MqttException {
         super(mqttURI, "r4gfkjgzwob2", new GenericTinkerforgeAgentContract("RemoteSwitcher", "remoteSwitcher01"));
         connect();
         switcherB = new SwitcherB();
+        switcherC = new SwitcherC();
         remoteSwitchUG = new RemoteSwitchServiceContract("qD7");
         remoteSwitchEG = new RemoteSwitchServiceContract("jKQ");
         remoteSwitchOG = new RemoteSwitchServiceContract("jKE");
 
         remoteSwitchListenerBOG = new RemoteSwitchV2ServiceContract("E1u");
         remoteSwitchListenerBEG = new RemoteSwitchV2ServiceContract("E1y");
-        remoteSwitchListenerAOG = new RemoteSwitchV2ServiceContract("E1r");
+        remoteSwitchListenerCOG = new RemoteSwitchV2ServiceContract("E1r");
 
         if (super.getTinkerforgeManagerServiceContracts().length == 0) {
             System.out.println("No ManagerServcie is running... Quit.");
@@ -94,19 +97,20 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
         }
 
         StackManagerServiceContract managerServiceContract = super.getTinkerforgeManagerServiceContracts()[0];
-        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("remoteSwitchListener"), new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("erdgeschoss"));
+        connectTinkerforgeStacksTo(managerServiceContract, new TinkerforgeStackAddress("remoteSwitchListenerEG"), new TinkerforgeStackAddress("remoteSwitchListener"), new TinkerforgeStackAddress("obergeschoss"), new TinkerforgeStackAddress("untergeschoss"), new TinkerforgeStackAddress("erdgeschoss"));
 
         RemoteSwitchV2Intent remoteSwitchV2Intent = new RemoteSwitchV2Intent();
         remoteSwitchV2Intent.remoteSwitchConfiguration = new RemoteSwitchConfiguration(RemoteType.B, true, 2);
         publishIntent(remoteSwitchListenerBOG.INTENT, remoteSwitchV2Intent);
         subscribe(remoteSwitchListenerBOG.EVENT_SWITCH_B, switcherB);
-
+        remoteSwitchV2Intent = new RemoteSwitchV2Intent();
+        remoteSwitchV2Intent.remoteSwitchConfiguration = new RemoteSwitchConfiguration(RemoteType.B, true, 2);
         publishIntent(remoteSwitchListenerBEG.INTENT, remoteSwitchV2Intent);
         subscribe(remoteSwitchListenerBEG.EVENT_SWITCH_B, switcherB);
-
-        //remoteSwitchV2Intent.remoteSwitchConfiguration = new RemoteSwitchConfiguration(RemoteType.A, true, 2);
-        //publishIntent(remoteSwitchListenerAOG.INTENT, remoteSwitchV2Intent);
-        //subscribe(remoteSwitchListenerAOG.EVENT_SWITCH_A, switcherB);
+        remoteSwitchV2Intent = new RemoteSwitchV2Intent();
+        remoteSwitchV2Intent.remoteSwitchConfiguration = new RemoteSwitchConfiguration(RemoteType.C, true, 2);
+        publishIntent(remoteSwitchListenerCOG.INTENT, remoteSwitchV2Intent);
+        subscribe(remoteSwitchListenerCOG.EVENT_SWITCH_C, switcherC);
     }
 
     class SwitcherB implements MessageReceiver {
@@ -177,17 +181,85 @@ public class RemoteSwitchAgent extends GenericTinkerforgeAgent {
                         remoteSwitchIntent.switchSocketBParameters = new SwitchSocketBParameters(4, (short) 0, SwitchSocketParameters.SwitchTo.getSwitchToFor((short) lastSwitchingEvent.switchTo));
                         publishIntent(contract.INTENT, remoteSwitchIntent);
                     }
+                    if (lastSwitchingEvent.address == 24487590 && lastSwitchingEvent.unit == 13) {
+                        contract = remoteSwitchEG;
+                        RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+                        remoteSwitchIntent.repeats=10;
+                        //EG
+                        remoteSwitchIntent.switchSocketCParameters = new SwitchSocketCParameters('C', (short) 2, SwitchSocketParameters.SwitchTo.getSwitchToFor((short) lastSwitchingEvent.switchTo));
+                        publishIntent(contract.INTENT, remoteSwitchIntent);
+                    }
+                    if (lastSwitchingEvent.address == 24487590 && lastSwitchingEvent.unit == 5) {
+                        contract = remoteSwitchUG;
+                        RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+                        //UG-Gang
+                        remoteSwitchIntent.switchSocketBParameters = new SwitchSocketBParameters(33202008, (short) 5, SwitchSocketParameters.SwitchTo.getSwitchToFor((short) lastSwitchingEvent.switchTo));
+                        publishIntent(contract.INTENT, remoteSwitchIntent);
+                    }
+                    if (lastSwitchingEvent.address == 25323942 && lastSwitchingEvent.unit == 13) {
+                        contract = remoteSwitchOG;
+                        RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+                        //OG-Bad
+                        remoteSwitchIntent.switchSocketBParameters = new SwitchSocketBParameters(4, (short) 2, SwitchSocketParameters.SwitchTo.getSwitchToFor((short) lastSwitchingEvent.switchTo));
+                        publishIntent(contract.INTENT, remoteSwitchIntent);
+                    }
+                     if (lastSwitchingEvent.address == 25323942 && lastSwitchingEvent.unit == 5) {
+                        contract = remoteSwitchOG;
+                        RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+                        //OG-Gallerie
+                        remoteSwitchIntent.switchSocketBParameters = new SwitchSocketBParameters(4, (short) 0, SwitchSocketParameters.SwitchTo.getSwitchToFor((short) lastSwitchingEvent.switchTo));
+                        publishIntent(contract.INTENT, remoteSwitchIntent);
+                    }
                 }
             }
 
         }
+    }
 
-        class ManagedRepeats {
+    class SwitcherC implements MessageReceiver {
 
-            public int repeats;
-            public String manager;
-            public long timeStamp;
+        private Map<String, ManagedRepeats> repeatsMap = new HashMap<>();
+
+        @Override
+        public void messageReceived(String topic, byte[] mm) throws Exception {
+            RemoteSwitchServiceContract contract = null;
+            SwitchCEvent lastSwitchingEvent = toMessageSet(mm, SwitchCEvent.class).last();
+            synchronized (this) {
+                ManagedRepeats managedRepeats = repeatsMap.get("" + lastSwitchingEvent.systemCode + lastSwitchingEvent.deviceCode);
+                if (managedRepeats == null) {
+                    managedRepeats = new ManagedRepeats();
+                    managedRepeats.manager = topic;
+                    repeatsMap.put("" + lastSwitchingEvent.systemCode + lastSwitchingEvent.deviceCode, managedRepeats);
+                } else if (lastSwitchingEvent.getTimeStamp() > managedRepeats.timeStamp + 2000000000L) {
+                    managedRepeats.manager = topic;
+                }
+                if (!managedRepeats.manager.equals(topic)) {
+                    return;
+                }
+
+                if (lastSwitchingEvent.repeats < managedRepeats.repeats || lastSwitchingEvent.repeats > managedRepeats.repeats + 5) {
+                    managedRepeats.repeats = lastSwitchingEvent.repeats;
+                    managedRepeats.timeStamp = lastSwitchingEvent.getTimeStamp();
+
+// Bereits direkt geschalten                    
+//                    if ((""+lastSwitchingEvent.systemCode+lastSwitchingEvent.deviceCode).equalsIgnoreCase("C2")) {
+//                        contract = remoteSwitchEG;
+//                        RemoteSwitchIntent remoteSwitchIntent = new RemoteSwitchIntent();
+//                        //Wohnzimmer
+//                        remoteSwitchIntent.switchSocketCParameters = new SwitchSocketCParameters('C', (short) 2, SwitchSocketParameters.SwitchTo.getSwitchToFor((short) lastSwitchingEvent.switchTo));
+//                        publishIntent(contract.INTENT, remoteSwitchIntent);
+//                    }
+                }
+            }
+
         }
+    }
+
+    class ManagedRepeats {
+
+        public int repeats;
+        public String manager;
+        public long timeStamp;
     }
 
     public static void main(String[] args) throws Throwable {

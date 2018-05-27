@@ -93,7 +93,7 @@ public abstract class AnLEDAbility implements Runnable, MessageReceiver {
 
     public LEDFrame getNewLEDFrame() {
 
-        return new LEDFrame(config.getChipType().getNumberOfChannels(), config.getNumberOfLEDs());
+        return new LEDFrame(config.getChipType().getNumberOfChannels(), config.getNumberOfLEDs(),null);
     }
 
     public void setLEDFrame(LEDFrame ledFrame) {

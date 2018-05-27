@@ -53,6 +53,7 @@ import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LEDStripServiceContract;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LagingEvent;
 import ch.quantasy.gateway.binding.tinkerforge.ledStrip.LedStripIntent;
 import ch.quantasy.gateway.binding.stackManager.TinkerforgeStackAddress;
+import ch.quantasy.mqtt.agents.led.abilities.DarkFire;
 import ch.quantasy.mqtt.agents.led.abilities.DarkSparklingFire;
 import java.net.URI;
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class balkon extends GenericTinkerforgeAgent {
         LEDStripServiceContract ledServiceContract1 = new LEDStripServiceContract("oZU", TinkerforgeDeviceClass.LEDStrip.toString());
         publishIntent(ledServiceContract1.INTENT, ledIntent);
 
-        abilities.add(new DarkSparklingFire(this, ledServiceContract1, config));
+        abilities.add(new DarkFire(this, ledServiceContract1, config));
 
         subscribe(ledServiceContract1.EVENT_LAGING, (topic, payload) -> {
             Set<LagingEvent> lag = toMessageSet(payload, LagingEvent.class);
